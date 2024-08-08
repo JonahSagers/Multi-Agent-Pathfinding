@@ -45,13 +45,15 @@ public class RenderGrid : MonoBehaviour
             for(float y = 0; y < gridSize; y += cellSize){
                 Vector2 pos = new Vector2(x, y);
                 cells.Add(pos, new Cell(pos));
-                if (lidarSample.Contains(pos))
-                {
+                // if(lidarSample.Contains(pos)){
+                //     cells[pos].obstructed = true;
+                // }
+                if (Random.value >= 0.95f){
                     cells[pos].obstructed = true;
                 }
             }
         }
-        FindPath(new Vector2(Random.Range(0,gridSize-1),Random.Range(0,gridSize-1)), new Vector2(Random.Range(0,gridSize-1),Random.Range(0,gridSize-1)));
+        // FindPath(new Vector2(Random.Range(0,gridSize-1),Random.Range(0,gridSize-1)), new Vector2(Random.Range(0,gridSize-1),Random.Range(0,gridSize-1)));
     }
     //if things break change this to private
     public class Cell
@@ -64,6 +66,7 @@ public class RenderGrid : MonoBehaviour
         public int hCost = int.MaxValue; //total cost
         public Vector2 connection;
         public bool obstructed;
+        public bool isUsed;
         public List<int> tickObstruct;
 
         public Cell(Vector2 pos)
@@ -127,6 +130,8 @@ public class RenderGrid : MonoBehaviour
 
                 while(pathCell.position != startPos){
                     finalPath.Add(pathCell.position);
+                    pathCell.obstructed = true;
+                    pathCell.isUsed = true;
                     pathCell = cells[pathCell.connection];
                 }
                 finalPath.Add(startPos);
@@ -204,7 +209,7 @@ public class RenderGrid : MonoBehaviour
             } else {
                 Gizmos.color = new Color(0f,0f,0f,0.3f);
             }
-            if(finalPath.Contains(kvp.Key)){
+            if(finalPath.Contains(kvp.Key) || kvp.Value.isUsed){
                 Gizmos.color = new Color(0f,255f,0f,0.3f);
             }
             Gizmos.DrawCube(kvp.Key + (Vector2)transform.position, new Vector2(cellSize, cellSize));

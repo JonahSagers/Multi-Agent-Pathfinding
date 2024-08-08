@@ -24,10 +24,12 @@ public class DroneMove : MonoBehaviour
         if(targets.Count > 0){
             transform.position = Vector3.MoveTowards(transform.position, new Vector3(targets[0].x,targets[0].y,transform.position.z), Time.deltaTime * speed);
             if(Vector3.Distance(transform.position, new Vector3(targets[0].x,targets[0].y,transform.position.z)) == 0){
+                gridRenderer.cells[targets[0]].obstructed = false;
+                gridRenderer.cells[targets[0]].isUsed = false;
                 targets.RemoveAt(0);
             }
-        }// else {
-        //     activate = true;
-        // }
+        } else {
+            activate = true;
+        }
     }
 }

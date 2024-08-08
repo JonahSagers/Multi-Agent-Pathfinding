@@ -211,7 +211,7 @@ Transform:
   m_GameObject: {fileID: 705507993}
   serializedVersion: 2
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalPosition: {x: -100, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -252,8 +252,8 @@ Camera:
   m_GameObject: {fileID: 963194225}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.15379137, g: 0.16687432, b: 0.18867922, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -340,16 +340,48 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cam: {fileID: 963194225}
   dronePrefab: {fileID: 951876740785091195, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
-  gridSize: 10
+  gridSize: 25
   cellSize: 1
-  droneCount: 0
+  droneCount: 4
   visualize: 1
   regenerate: 0
   remainingCells: []
   searchedCells: []
   finalPath: []
   lidarSample:
-  - {x: 1, y: 1}
+  - {x: 5, y: 5}
+  - {x: 5, y: 4}
+  - {x: 5, y: 6}
+  - {x: 4, y: 5}
+  - {x: 6, y: 5}
+  - {x: 10, y: 10}
+  - {x: 10, y: 9}
+  - {x: 10, y: 11}
+  - {x: 9, y: 10}
+  - {x: 11, y: 10}
+  - {x: 15, y: 15}
+  - {x: 16, y: 15}
+  - {x: 17, y: 15}
+  - {x: 14, y: 16}
+  - {x: 15, y: 16}
+  - {x: 16, y: 16}
+  - {x: 17, y: 16}
+  - {x: 18, y: 16}
+  - {x: 14, y: 17}
+  - {x: 15, y: 17}
+  - {x: 16, y: 17}
+  - {x: 17, y: 17}
+  - {x: 18, y: 17}
+  - {x: 14, y: 18}
+  - {x: 15, y: 18}
+  - {x: 16, y: 18}
+  - {x: 17, y: 18}
+  - {x: 18, y: 18}
+  - {x: 15, y: 19}
+  - {x: 16, y: 19}
+  - {x: 17, y: 19}
+  - {x: 20, y: 5}
+  - {x: 16, y: 3}
 --- !u!4 &2074590937
 Transform:
   m_ObjectHideFlags: 0
@@ -383,7 +415,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: speed
-      value: 5
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: gridRenderer
