@@ -26,8 +26,8 @@ public class DroneMove : MonoBehaviour
             if(Vector3.Distance(transform.position, new Vector3(targets[0].x,targets[0].y,transform.position.z)) == 0){
                 targets.RemoveAt(0);
             }
-        } else {
-            activate = true;
-        }
+        }// else {
+        //     activate = true;
+        // }
     }
 }

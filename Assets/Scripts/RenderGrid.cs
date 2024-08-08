@@ -17,6 +17,8 @@ public class RenderGrid : MonoBehaviour
     public List<Vector2> searchedCells;
     public List<Vector2> finalPath;
 
+    public List<Vector2> lidarSample;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -43,7 +45,7 @@ public class RenderGrid : MonoBehaviour
             for(float y = 0; y < gridSize; y += cellSize){
                 Vector2 pos = new Vector2(x, y);
                 cells.Add(pos, new Cell(pos));
-                if (Random.value >= 0.7f)
+                if (lidarSample.Contains(pos))
                 {
                     cells[pos].obstructed = true;
                 }
@@ -62,6 +64,7 @@ public class RenderGrid : MonoBehaviour
         public int hCost = int.MaxValue; //total cost
         public Vector2 connection;
         public bool obstructed;
+        public List<int> tickObstruct;
 
         public Cell(Vector2 pos)
         {
@@ -88,12 +91,25 @@ public class RenderGrid : MonoBehaviour
                 cells[pos].hCost = int.MaxValue;
             }
         }
-
+        //check if the end point is a wall
         if(cells[startPos].obstructed || cells[endPos].obstructed){
             Debug.Log("End point obstructed");
             return remainingCells;
         }
+        //check if the end point is too close to a wall
+        for (float x = endPos.x - cellSize; x <= cellSize + endPos.x; x += cellSize)
+        {
+            for (float y = endPos.y - cellSize; y <= cellSize + endPos.y; y += cellSize)
+            {
+                Vector2 neighborPos = new Vector2(x, y);
+                if(cells.TryGetValue(neighborPos, out Cell c) && cells[neighborPos].obstructed){
+                    Debug.Log("End point obstructed");
+                    return remainingCells;
+                }
+            }
+        }
         Debug.Log("Moving from "+startPos+" to "+endPos);
+        //check all available tiles
         while(remainingCells.Count > 0){
             Vector2 nextCell = remainingCells[0];
             //pos is the cell current being scanned
@@ -125,6 +141,20 @@ public class RenderGrid : MonoBehaviour
 
     private void SearchCellNeighbors(Vector2 cellPos, Vector2 endPos)
     {
+        //first check if the tile is touching a wall
+        //might only need to check cardinal directions, but this version is expandable to demand a wider berth
+        for (float x = cellPos.x - cellSize; x <= cellSize + cellPos.x; x += cellSize)
+        {
+            for (float y = cellPos.y - cellSize; y <= cellSize + cellPos.y; y += cellSize)
+            {
+                Vector2 neighborPos = new Vector2(x, y);
+                if(cells.TryGetValue(neighborPos, out Cell c) && cells[neighborPos].obstructed){
+                    remainingCells.Remove(cellPos);
+                    return;
+                }
+            }
+        }
+        //check neighbors and add them to the queue if eligible
         for (float x = cellPos.x - cellSize; x <= cellSize + cellPos.x; x += cellSize)
         {
             for (float y = cellPos.y - cellSize; y <= cellSize + cellPos.y; y += cellSize)
