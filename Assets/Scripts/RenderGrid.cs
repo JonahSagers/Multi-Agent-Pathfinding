@@ -12,6 +12,7 @@ public class RenderGrid : MonoBehaviour
     public Dictionary<Vector2, Cell> cells;
     public bool visualize;
     public bool regenerate;
+    public int movingDrones;
 
     public List<Vector2> remainingCells;
     public List<Vector2> searchedCells;
@@ -45,15 +46,14 @@ public class RenderGrid : MonoBehaviour
             for(float y = 0; y < gridSize; y += cellSize){
                 Vector2 pos = new Vector2(x, y);
                 cells.Add(pos, new Cell(pos));
-                // if(lidarSample.Contains(pos)){
-                //     cells[pos].obstructed = true;
-                // }
-                if (Random.value >= 0.95f){
+                if(lidarSample.Contains(pos)){
                     cells[pos].obstructed = true;
                 }
+                // if (Random.value >= 0.95f){
+                //     cells[pos].obstructed = true;
+                // }
             }
         }
-        // FindPath(new Vector2(Random.Range(0,gridSize-1),Random.Range(0,gridSize-1)), new Vector2(Random.Range(0,gridSize-1),Random.Range(0,gridSize-1)));
     }
     //if things break change this to private
     public class Cell
@@ -66,7 +66,7 @@ public class RenderGrid : MonoBehaviour
         public int hCost = int.MaxValue; //total cost
         public Vector2 connection;
         public bool obstructed;
-        public bool isUsed;
+        public int isUsed; //number of drones using the tile, currently only for debugging
         public List<int> tickObstruct;
 
         public Cell(Vector2 pos)
@@ -96,22 +96,14 @@ public class RenderGrid : MonoBehaviour
         }
         //check if the end point is a wall
         if(cells[startPos].obstructed || cells[endPos].obstructed){
-            Debug.Log("End point obstructed");
+            //Debug.Log("End point obstructed");
             return remainingCells;
         }
         //check if the end point is too close to a wall
-        for (float x = endPos.x - cellSize; x <= cellSize + endPos.x; x += cellSize)
-        {
-            for (float y = endPos.y - cellSize; y <= cellSize + endPos.y; y += cellSize)
-            {
-                Vector2 neighborPos = new Vector2(x, y);
-                if(cells.TryGetValue(neighborPos, out Cell c) && cells[neighborPos].obstructed){
-                    Debug.Log("End point obstructed");
-                    return remainingCells;
-                }
-            }
+        if(!CheckValid(endPos)){
+            return remainingCells;
         }
-        Debug.Log("Moving from "+startPos+" to "+endPos);
+        //Debug.Log("Moving from "+startPos+" to "+endPos);
         //check all available tiles
         while(remainingCells.Count > 0){
             Vector2 nextCell = remainingCells[0];
@@ -131,33 +123,62 @@ public class RenderGrid : MonoBehaviour
                 while(pathCell.position != startPos){
                     finalPath.Add(pathCell.position);
                     pathCell.obstructed = true;
-                    pathCell.isUsed = true;
+                    pathCell.isUsed += 1;
                     pathCell = cells[pathCell.connection];
                 }
                 finalPath.Add(startPos);
                 finalPath.Reverse();
+                movingDrones += 1;
                 return finalPath;
             }
             SearchCellNeighbors(nextCell, endPos);
         }
-        Debug.Log("Path is obstructed");
-        return finalPath;
+        //Debug.Log("Path is obstructed");
+        return new List<Vector2> {};
     }
 
-    private void SearchCellNeighbors(Vector2 cellPos, Vector2 endPos)
+
+    private bool CheckValid(Vector2 cellPos)
     {
-        //first check if the tile is touching a wall
-        //might only need to check cardinal directions, but this version is expandable to demand a wider berth
         for (float x = cellPos.x - cellSize; x <= cellSize + cellPos.x; x += cellSize)
         {
             for (float y = cellPos.y - cellSize; y <= cellSize + cellPos.y; y += cellSize)
             {
                 Vector2 neighborPos = new Vector2(x, y);
                 if(cells.TryGetValue(neighborPos, out Cell c) && cells[neighborPos].obstructed){
-                    remainingCells.Remove(cellPos);
-                    return;
+                    return false;
                 }
             }
+        }
+        return true;
+    }
+
+    public Vector2 FindNearest(Vector2 cellPos)
+    {
+        //this checks tiles way too many times, find a way to only check perimeter tiles
+        //it's checking in a pyramid, where the center tiles are checked every iteration
+        for(int i = 0; i < gridSize; i++){
+            for (float x = cellPos.x - cellSize * i; x <= cellSize * i + cellPos.x; x += cellSize)
+            {
+                for (float y = cellPos.y - cellSize * i; y <= cellSize * i + cellPos.y; y += cellSize)
+                {
+                    Vector2 checkPos = new Vector2(x, y);
+                    if(cells.TryGetValue(checkPos, out Cell c) && CheckValid(checkPos)){
+                        return checkPos;
+                    }
+                    
+                }
+            }
+        }
+        return new Vector2(-1,-1);
+    }
+
+    private void SearchCellNeighbors(Vector2 cellPos, Vector2 endPos)
+    {
+        //first check if the tile is touching a wall
+        //might only need to check cardinal directions, but this version is expandable to demand a wider berth
+        if(!CheckValid(cellPos)){
+            return;
         }
         //check neighbors and add them to the queue if eligible
         for (float x = cellPos.x - cellSize; x <= cellSize + cellPos.x; x += cellSize)
@@ -209,7 +230,7 @@ public class RenderGrid : MonoBehaviour
             } else {
                 Gizmos.color = new Color(0f,0f,0f,0.3f);
             }
-            if(finalPath.Contains(kvp.Key) || kvp.Value.isUsed){
+            if(finalPath.Contains(kvp.Key) || kvp.Value.isUsed > 0){
                 Gizmos.color = new Color(0f,255f,0f,0.3f);
             }
             Gizmos.DrawCube(kvp.Key + (Vector2)transform.position, new Vector2(cellSize, cellSize));

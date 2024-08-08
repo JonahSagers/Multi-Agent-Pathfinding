@@ -8,6 +8,7 @@ public class DroneMove : MonoBehaviour
     public float speed;
     public List<Vector2> targets;
     public RenderGrid gridRenderer;
+    public Vector2 currentPos;
     // Start is called before the first frame update
     void Start()
     {
@@ -18,18 +19,69 @@ public class DroneMove : MonoBehaviour
     void Update()
     {
         if(activate){
-            targets = gridRenderer.FindPath(new Vector2(Mathf.RoundToInt(transform.position.x),Mathf.RoundToInt(transform.position.y)), new Vector2(Random.Range(0,gridRenderer.gridSize-1),Random.Range(0,gridRenderer.gridSize-1)));
-            activate = false;
+            MoveTo(new Vector2(Random.Range(0,gridRenderer.gridSize-1),Random.Range(0,gridRenderer.gridSize-1)));
         }
         if(targets.Count > 0){
             transform.position = Vector3.MoveTowards(transform.position, new Vector3(targets[0].x,targets[0].y,transform.position.z), Time.deltaTime * speed);
             if(Vector3.Distance(transform.position, new Vector3(targets[0].x,targets[0].y,transform.position.z)) == 0){
                 gridRenderer.cells[targets[0]].obstructed = false;
-                gridRenderer.cells[targets[0]].isUsed = false;
+                //there should never be a case where isUsed goes negative, but I think it happens when intersecting paths are invalid
+                if(gridRenderer.cells[targets[0]].isUsed > 0){
+                    gridRenderer.cells[targets[0]].isUsed -= 1;
+                }
                 targets.RemoveAt(0);
+                if(targets.Count == 0){
+                    gridRenderer.movingDrones -= 1;
+                }
             }
         } else {
-            activate = true;
+            currentPos = new Vector2(Mathf.RoundToInt(transform.position.x),Mathf.RoundToInt(transform.position.y));
+            gridRenderer.cells[currentPos].obstructed = true;
+            if(gridRenderer.cells[currentPos].isUsed < 1){
+                gridRenderer.cells[currentPos].isUsed += 1;
+            }
         }
+        
+        // else {
+        //     activate = true;
+        // }
+    }
+    public void MoveTo(Vector2 cellPos)
+    {
+        //remove all previous targets
+        if(targets.Count > 0){
+            gridRenderer.movingDrones -= 1;
+        }
+        while(targets.Count > 0){
+            gridRenderer.cells[targets[0]].obstructed = false;
+            if(gridRenderer.cells[targets[0]].isUsed > 0){
+                gridRenderer.cells[targets[0]].isUsed -= 1;
+            }
+            targets.RemoveAt(0);
+        }
+        gridRenderer.cells[new Vector2(Mathf.RoundToInt(transform.position.x),Mathf.RoundToInt(transform.position.y))].obstructed = false;
+        if(gridRenderer.cells[currentPos].isUsed > 0){
+            gridRenderer.cells[new Vector2(Mathf.RoundToInt(transform.position.x),Mathf.RoundToInt(transform.position.y))].isUsed -= 1;
+        }
+        cellPos = gridRenderer.FindNearest(cellPos);
+        if(cellPos != currentPos){
+            targets = gridRenderer.FindPath(new Vector2(Mathf.RoundToInt(transform.position.x),Mathf.RoundToInt(transform.position.y)), cellPos);
+            if(targets.Count == 0){
+                StartCoroutine(RetryMove(cellPos));
+            }
+        } else {
+            gridRenderer.cells[currentPos].obstructed = true;
+            if(gridRenderer.cells[currentPos].isUsed < 1){
+                gridRenderer.cells[currentPos].isUsed += 1;
+            }
+        }
+        activate = false;
+        return;
+    }
+
+    public IEnumerator RetryMove(Vector2 cellPos)
+    {
+        yield return new WaitForSeconds(0.5f);
+        MoveTo(cellPos);
     }
 }
