@@ -12,11 +12,11 @@ public class MouseDetect : MonoBehaviour
     public Vector2Int lastTarget;
     public Coroutine settle;
     // Start is called before the first frame update
-    // IEnumerator Start()
-    // {
-    //     yield return 0;
-    //     StartCoroutine(ChaseTick(0.01f));
-    // }
+    IEnumerator Start()
+    {
+        yield return 0;
+        StartCoroutine(ChaseTick(0.01f));
+    }
 
     // Update is called once per frame
     void Update()
@@ -68,7 +68,7 @@ public class MouseDetect : MonoBehaviour
         yield return 0;
         while(gridRenderer.movingDrones > 0) yield return null;
         yield return 0;
-        Debug.Log("Settling");
+        //Debug.Log("Settling");
         foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
             drone.GetComponent<DroneMove>().MoveTo(cellPos);
             yield return 0;

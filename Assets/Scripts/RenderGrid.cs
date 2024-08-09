@@ -98,11 +98,11 @@ public class RenderGrid : MonoBehaviour
         //check if the end point is a wall
         if(cells[endPos].obstructed){
             //Debug.Log("End point obstructed");
-            return remainingCells;
+            return new List<Vector2> {};
         }
         //check if the end point is too close to a wall
         if(!CheckValid(endPos, startPos)){
-            return remainingCells;
+            return new List<Vector2> {};
         }
         //Debug.Log("Moving from "+startPos+" to "+endPos);
         //check all available tiles
