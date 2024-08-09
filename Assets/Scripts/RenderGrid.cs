@@ -96,12 +96,12 @@ public class RenderGrid : MonoBehaviour
             }
         }
         //check if the end point is a wall
-        if(cells[startPos].obstructed || cells[endPos].obstructed){
+        if(cells[endPos].obstructed){
             //Debug.Log("End point obstructed");
             return remainingCells;
         }
         //check if the end point is too close to a wall
-        if(!CheckValid(endPos)){
+        if(!CheckValid(endPos, startPos)){
             return remainingCells;
         }
         //Debug.Log("Moving from "+startPos+" to "+endPos);
@@ -132,21 +132,21 @@ public class RenderGrid : MonoBehaviour
                 movingDrones += 1;
                 return finalPath;
             }
-            SearchCellNeighbors(nextCell, endPos);
+            SearchCellNeighbors(nextCell, endPos, startPos);
         }
         //Debug.Log("Path is obstructed");
         return new List<Vector2> {};
     }
 
 
-    private bool CheckValid(Vector2 cellPos)
+    private bool CheckValid(Vector2 cellPos, Vector2 startPos)
     {
         for (float x = cellPos.x - cellSize; x <= cellSize + cellPos.x; x += cellSize)
         {
             for (float y = cellPos.y - cellSize; y <= cellSize + cellPos.y; y += cellSize)
             {
                 Vector2 neighborPos = new Vector2(x, y);
-                if(cells.TryGetValue(neighborPos, out Cell c) && cells[neighborPos].obstructed){
+                if(cells.TryGetValue(neighborPos, out Cell c) && cells[neighborPos].obstructed && neighborPos != startPos){
                     return false;
                 }
             }
@@ -154,7 +154,7 @@ public class RenderGrid : MonoBehaviour
         return true;
     }
 
-    public Vector2 FindNearest(Vector2 cellPos)
+    public Vector2 FindNearest(Vector2 cellPos, Vector2 startPos)
     {
         //this checks tiles way too many times, find a way to only check perimeter tiles
         //it's checking in a pyramid, where the center tiles are checked every iteration
@@ -164,7 +164,7 @@ public class RenderGrid : MonoBehaviour
                 for (float y = cellPos.y - cellSize * i; y <= cellSize * i + cellPos.y; y += cellSize)
                 {
                     Vector2 checkPos = new Vector2(x, y);
-                    if(cells.TryGetValue(checkPos, out Cell c) && CheckValid(checkPos)){
+                    if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos) || checkPos == startPos)){
                         return checkPos;
                     }
                     
@@ -174,11 +174,11 @@ public class RenderGrid : MonoBehaviour
         return new Vector2(-1,-1);
     }
 
-    private void SearchCellNeighbors(Vector2 cellPos, Vector2 endPos)
+    private void SearchCellNeighbors(Vector2 cellPos, Vector2 endPos, Vector2 startPos)
     {
         //first check if the tile is touching a wall
         //might only need to check cardinal directions, but this version is expandable to demand a wider berth
-        if(!CheckValid(cellPos)){
+        if(!CheckValid(cellPos, startPos)){
             return;
         }
         //check neighbors and add them to the queue if eligible
@@ -187,7 +187,7 @@ public class RenderGrid : MonoBehaviour
             for (float y = cellPos.y - cellSize; y <= cellSize + cellPos.y; y += cellSize)
             {
                 Vector2 neighborPos = new Vector2(x, y);
-                if(cells.TryGetValue(neighborPos, out Cell c) && !searchedCells.Contains(neighborPos) && !cells[neighborPos].obstructed){
+                if(cells.TryGetValue(neighborPos, out Cell c) && !searchedCells.Contains(neighborPos) && (!cells[neighborPos].obstructed || neighborPos == startPos)){
                     int GcostToNeighbor = cells[cellPos].gCost + GetDistance(cellPos, neighborPos);
                     if(GcostToNeighbor < cells[neighborPos].gCost){
                         Cell neighborNode = cells[neighborPos];

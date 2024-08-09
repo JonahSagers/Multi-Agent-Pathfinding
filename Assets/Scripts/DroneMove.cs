@@ -49,6 +49,7 @@ public class DroneMove : MonoBehaviour
     }
     public void MoveTo(Vector2 cellPos)
     {
+        currentPos = new Vector2(Mathf.RoundToInt(transform.position.x),Mathf.RoundToInt(transform.position.y));
         //remove all previous targets
         if(targets.Count > 0){
             gridRenderer.movingDrones -= 1;
@@ -60,22 +61,22 @@ public class DroneMove : MonoBehaviour
             }
             targets.RemoveAt(0);
         }
-        gridRenderer.cells[new Vector2(Mathf.RoundToInt(transform.position.x),Mathf.RoundToInt(transform.position.y))].obstructed = false;
-        if(gridRenderer.cells[currentPos].isUsed > 0){
-            gridRenderer.cells[new Vector2(Mathf.RoundToInt(transform.position.x),Mathf.RoundToInt(transform.position.y))].isUsed -= 1;
-        }
-        cellPos = gridRenderer.FindNearest(cellPos);
+        // gridRenderer.cells[new Vector2(Mathf.RoundToInt(transform.position.x),Mathf.RoundToInt(transform.position.y))].obstructed = false;
+        // if(gridRenderer.cells[currentPos].isUsed > 0){
+        //     gridRenderer.cells[new Vector2(Mathf.RoundToInt(transform.position.x),Mathf.RoundToInt(transform.position.y))].isUsed -= 1;
+        // }
+        cellPos = gridRenderer.FindNearest(cellPos, currentPos);
         if(cellPos != currentPos){
             targets = gridRenderer.FindPath(new Vector2(Mathf.RoundToInt(transform.position.x),Mathf.RoundToInt(transform.position.y)), cellPos);
             if(targets.Count == 0){
                 StartCoroutine(RetryMove(cellPos));
             }
-        } else {
-            gridRenderer.cells[currentPos].obstructed = true;
-            if(gridRenderer.cells[currentPos].isUsed < 1){
-                gridRenderer.cells[currentPos].isUsed += 1;
-            }
-        }
+        }// else {
+        //     gridRenderer.cells[currentPos].obstructed = true;
+        //     if(gridRenderer.cells[currentPos].isUsed < 1){
+        //         gridRenderer.cells[currentPos].isUsed += 1;
+        //     }
+        // }
         activate = false;
         return;
     }
@@ -84,5 +85,11 @@ public class DroneMove : MonoBehaviour
     {
         yield return new WaitForSeconds(0.5f);
         MoveTo(cellPos);
+    }
+
+    //purely for debug as real drones will not have collision detection
+    void OnCollisionEnter(Collision collision)
+    {
+        Debug.Log("Collision Detected");
     }
 }
