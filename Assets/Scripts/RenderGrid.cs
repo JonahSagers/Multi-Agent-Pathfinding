@@ -22,7 +22,9 @@ public class RenderGrid : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Time.maximumDeltaTime = 0.1f;
+        Application.targetFrameRate = 60;
+        //do no drop frames lower than 50 fps
+        Time.maximumDeltaTime = 0.025f;
         for(int i = 0; i < droneCount; i++){
             Instantiate(dronePrefab);
         }
@@ -146,18 +148,38 @@ public class RenderGrid : MonoBehaviour
 
     public Vector2 FindNearest(Vector2 cellPos, Vector2 startPos)
     {
-        //this checks tiles way too many times, find a way to only check perimeter tiles
-        //it's checking in a pyramid, where the center tiles are checked every iteration
+        float y;
+        float x;
+        Vector2 checkPos;
+        //I was so scared to use four for loops because of what my comp sci teachers would say but it's much more efficient than the last method
         for(int i = 0; i < gridSize; i++){
-            for (float x = cellPos.x - 1 * i; x <= i + cellPos.x; x += 1)
+            y = cellPos.y -i;
+            for (x = cellPos.x - i; x <= cellPos.x + i; x += 1)
             {
-                for (float y = cellPos.y - 1 * i; y <= i + cellPos.y; y += 1)
-                {
-                    Vector2 checkPos = new Vector2(x, y);
-                    if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos) || checkPos == startPos)){
-                        return checkPos;
-                    }
-                    
+                checkPos = new Vector2(x, y);
+                if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos) || checkPos == startPos)){
+                    return checkPos;
+                }
+            }
+            for (y = cellPos.y - i; y <= cellPos.y + i; y += 1)
+            {
+                checkPos = new Vector2(x, y);
+                if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos) || checkPos == startPos)){
+                    return checkPos;
+                }
+            }
+            for (x = cellPos.x + i; x >= cellPos.x - i; x -= 1)
+            {
+                checkPos = new Vector2(x, y);
+                if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos) || checkPos == startPos)){
+                    return checkPos;
+                }
+            }
+            for (y = cellPos.y + i; y >= cellPos.y - i; y -= 1)
+            {
+                checkPos = new Vector2(x, y);
+                if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos) || checkPos == startPos)){
+                    return checkPos;
                 }
             }
         }
