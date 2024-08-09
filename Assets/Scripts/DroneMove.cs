@@ -70,6 +70,7 @@ public class DroneMove : MonoBehaviour
         if(cellPos != currentPos){
             targets = gridRenderer.FindPath(new Vector2(Mathf.RoundToInt(transform.position.x),Mathf.RoundToInt(transform.position.y)), cellPos);
             if(targets.Count == 0){
+                gridRenderer.movingDrones += 1;
                 //drones without a valid path sometimes get stuck at a weird decimal position, and don't count their tile as occupied
                 //this code makes it move to the nearest int while waiting for a path
                 targets.Add(currentPos);

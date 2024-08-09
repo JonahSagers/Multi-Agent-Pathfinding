@@ -11,10 +11,28 @@ public class MouseDetect : MonoBehaviour
     public RenderGrid gridRenderer;
     public Vector2Int lastTarget;
     public Coroutine settle;
+    public int segments = 50;
+    float radius;
+    public LineRenderer line;
     // Start is called before the first frame update
     IEnumerator Start()
     {
         yield return 0;
+        line.positionCount =  (segments + 1);
+
+        radius = gridRenderer.gridSize/5+0.5f;
+        float x;
+        float y;
+        float angle = 20f;
+        for (int i = 0; i < (segments + 1); i++)
+        {
+            x = Mathf.Sin (Mathf.Deg2Rad * angle) * radius;
+            y = Mathf.Cos (Mathf.Deg2Rad * angle) * radius;
+
+            line.SetPosition (i,new Vector3(x,y,0) );
+
+            angle += (360f / segments);
+        }
         StartCoroutine(ChaseTick(0.01f));
     }
 
@@ -25,6 +43,7 @@ public class MouseDetect : MonoBehaviour
         mousePixel.z = -cam.transform.position.z;
         mousePos = cam.ScreenToWorldPoint(mousePixel);
         mousePos2d = new Vector2Int((int)mousePos.x,(int)mousePos.y);
+        transform.position = mousePos;
 
         if(Input.GetMouseButtonDown(0) && !Input.GetKey(KeyCode.Z) && !Input.GetKey(KeyCode.X)){
             if((int)mousePos.x >= 0 && (int)mousePos.x < gridRenderer.gridSize && (int)mousePos.y >= 0 && (int)mousePos.y < gridRenderer.gridSize){
@@ -58,8 +77,8 @@ public class MouseDetect : MonoBehaviour
         StartCoroutine(Settle(mousePos2d, 3));
         foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
             drone.GetComponent<DroneMove>().MoveTo(mousePos2d);
-            yield return 0;
         }
+        yield return null;
     }
 
     public IEnumerator Settle(Vector2 cellPos, int iterations)
@@ -87,7 +106,10 @@ public class MouseDetect : MonoBehaviour
                 Debug.Log(mousePos2d);
                 lastTarget = mousePos2d;
                 foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
-                    drone.GetComponent<DroneMove>().MoveTo(mousePos2d);
+                    if(Vector2.Distance(drone.transform.position, mousePos2d) > gridRenderer.gridSize/5 && drone.GetComponent<DroneMove>().targets.Count == 0){
+                        drone.GetComponent<DroneMove>().MoveTo(mousePos2d);
+                        yield return 0;
+                    }
                 }
             } else {
                 Debug.Log("Invalid Location");
