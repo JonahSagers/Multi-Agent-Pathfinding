@@ -22,8 +22,9 @@ public class DroneMove : MonoBehaviour
             MoveTo(new Vector2(Random.Range(0,gridRenderer.gridSize-1),Random.Range(0,gridRenderer.gridSize-1)));
         }
         if(targets.Count > 0){
-            transform.position = Vector3.MoveTowards(transform.position, new Vector3(targets[Mathf.Min(1,targets.Count-1)].x,targets[Mathf.Min(1,targets.Count-1)].y,transform.position.z), Time.deltaTime * speed);
-            if(Vector3.Distance(transform.position, new Vector3(targets[Mathf.Min(1,targets.Count-1)].x,targets[Mathf.Min(1,targets.Count-1)].y,transform.position.z)) == 0){
+            int nextIndex = Mathf.Min(1,targets.Count-1);
+            transform.position = Vector3.MoveTowards(transform.position, new Vector3(targets[nextIndex].x,targets[nextIndex].y,transform.position.z), Time.deltaTime * speed);
+            if(Vector2.Distance(transform.position, targets[nextIndex]) == 0){
                 if(targets.Count > 1){
                     gridRenderer.cells[targets[0]].obstructed = false;
                     if(gridRenderer.cells[targets[0]].isUsed > 0){
@@ -54,38 +55,26 @@ public class DroneMove : MonoBehaviour
         //remove all previous targets
         if(targets.Count > 0){
             gridRenderer.movingDrones -= 1;
-            while(targets.Count > 0){
-                gridRenderer.cells[targets[0]].obstructed = false;
-                if(gridRenderer.cells[targets[0]].isUsed > 0){
-                    gridRenderer.cells[targets[0]].isUsed -= 1;
+            foreach(Vector2 c in targets){
+                RenderGrid.Cell cell = gridRenderer.cells[c];
+                cell.obstructed = false;
+                if(cell.isUsed > 0){
+                    cell.isUsed -= 1;
                 }
-                targets.RemoveAt(0);
             }
         }
-        // gridRenderer.cells[new Vector2(Mathf.RoundToInt(transform.position.x),Mathf.RoundToInt(transform.position.y))].obstructed = false;
-        // if(gridRenderer.cells[currentPos].isUsed > 0){
-        //     gridRenderer.cells[new Vector2(Mathf.RoundToInt(transform.position.x),Mathf.RoundToInt(transform.position.y))].isUsed -= 1;
-        // }
         cellPos = gridRenderer.FindNearest(cellPos, currentPos);
         if(cellPos != currentPos){
-            targets = gridRenderer.FindPath(new Vector2(Mathf.RoundToInt(transform.position.x),Mathf.RoundToInt(transform.position.y)), cellPos);
+            targets = gridRenderer.FindPath(currentPos, cellPos);
             if(targets.Count == 0){
                 gridRenderer.movingDrones += 1;
                 //drones without a valid path sometimes get stuck at a weird decimal position, and don't count their tile as occupied
                 //this code makes it move to the nearest int while waiting for a path
                 targets.Add(currentPos);
                 gridRenderer.cells[currentPos].obstructed = true;
-                // gridRenderer.cells[currentPos].isUsed += 1;
                 StartCoroutine(RetryMove(cellPos));
             }
-        }// else {
-        //     gridRenderer.cells[currentPos].obstructed = true;
-        //     if(gridRenderer.cells[currentPos].isUsed < 1){
-        //         gridRenderer.cells[currentPos].isUsed += 1;
-        //     }
-        // }
-        activate = false;
-        return;
+        }
     }
 
     public IEnumerator RetryMove(Vector2 cellPos)

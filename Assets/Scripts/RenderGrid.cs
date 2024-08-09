@@ -7,7 +7,6 @@ public class RenderGrid : MonoBehaviour
     public GameObject cam;
     public GameObject dronePrefab;
     public int gridSize;
-    public int cellSize;
     public int droneCount;
     public Dictionary<Vector2, Cell> cells;
     public bool visualize;
@@ -43,8 +42,8 @@ public class RenderGrid : MonoBehaviour
     {
         cam.transform.position = new Vector3(gridSize/2,gridSize/2,-gridSize*0.9f);
         cells = new Dictionary<Vector2, Cell>();
-        for(float x = 0; x < gridSize; x += cellSize){
-            for(float y = 0; y < gridSize; y += cellSize){
+        for(float x = 0; x < gridSize; x += 1){
+            for(float y = 0; y < gridSize; y += 1){
                 Vector2 pos = new Vector2(x, y);
                 cells.Add(pos, new Cell(pos));
                 if(lidarSample.Contains(pos)){
@@ -87,22 +86,13 @@ public class RenderGrid : MonoBehaviour
         startCell.hCost = GetDistance(startPos, endPos);
         startCell.fCost = GetDistance(startPos, endPos);
 
-        for(float x = 0; x < gridSize; x += cellSize){
-            for(float y = 0; y < gridSize; y += cellSize){
+        for(float x = 0; x < gridSize; x += 1){
+            for(float y = 0; y < gridSize; y += 1){
                 Vector2 pos = new Vector2(x, y);
                 cells[pos].fCost = int.MaxValue;
                 cells[pos].gCost = int.MaxValue;
                 cells[pos].hCost = int.MaxValue;
             }
-        }
-        //check if the end point is a wall
-        if(cells[endPos].obstructed){
-            //Debug.Log("End point obstructed");
-            return new List<Vector2> {};
-        }
-        //check if the end point is too close to a wall
-        if(!CheckValid(endPos, startPos)){
-            return new List<Vector2> {};
         }
         //Debug.Log("Moving from "+startPos+" to "+endPos);
         //check all available tiles
@@ -141,9 +131,9 @@ public class RenderGrid : MonoBehaviour
 
     private bool CheckValid(Vector2 cellPos, Vector2 startPos)
     {
-        for (float x = cellPos.x - cellSize; x <= cellSize + cellPos.x; x += cellSize)
+        for (float x = cellPos.x - 1; x <= 1 + cellPos.x; x += 1)
         {
-            for (float y = cellPos.y - cellSize; y <= cellSize + cellPos.y; y += cellSize)
+            for (float y = cellPos.y - 1; y <= 1 + cellPos.y; y += 1)
             {
                 Vector2 neighborPos = new Vector2(x, y);
                 if(cells.TryGetValue(neighborPos, out Cell c) && cells[neighborPos].obstructed && neighborPos != startPos){
@@ -159,9 +149,9 @@ public class RenderGrid : MonoBehaviour
         //this checks tiles way too many times, find a way to only check perimeter tiles
         //it's checking in a pyramid, where the center tiles are checked every iteration
         for(int i = 0; i < gridSize; i++){
-            for (float x = cellPos.x - cellSize * i; x <= cellSize * i + cellPos.x; x += cellSize)
+            for (float x = cellPos.x - 1 * i; x <= i + cellPos.x; x += 1)
             {
-                for (float y = cellPos.y - cellSize * i; y <= cellSize * i + cellPos.y; y += cellSize)
+                for (float y = cellPos.y - 1 * i; y <= i + cellPos.y; y += 1)
                 {
                     Vector2 checkPos = new Vector2(x, y);
                     if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos) || checkPos == startPos)){
@@ -182,9 +172,9 @@ public class RenderGrid : MonoBehaviour
             return;
         }
         //check neighbors and add them to the queue if eligible
-        for (float x = cellPos.x - cellSize; x <= cellSize + cellPos.x; x += cellSize)
+        for (float x = cellPos.x - 1; x <= 1 + cellPos.x; x += 1)
         {
-            for (float y = cellPos.y - cellSize; y <= cellSize + cellPos.y; y += cellSize)
+            for (float y = cellPos.y - 1; y <= 1 + cellPos.y; y += 1)
             {
                 Vector2 neighborPos = new Vector2(x, y);
                 if(cells.TryGetValue(neighborPos, out Cell c) && !searchedCells.Contains(neighborPos) && (!cells[neighborPos].obstructed || neighborPos == startPos)){
@@ -234,7 +224,7 @@ public class RenderGrid : MonoBehaviour
             if(finalPath.Contains(kvp.Key) || kvp.Value.isUsed > 0){
                 Gizmos.color = new Color(0f,255f,0f,0.3f);
             }
-            Gizmos.DrawCube(kvp.Key + (Vector2)transform.position, new Vector2(cellSize, cellSize));
+            Gizmos.DrawCube(kvp.Key + (Vector2)transform.position, new Vector2(1, 1));
         }
     }
 }

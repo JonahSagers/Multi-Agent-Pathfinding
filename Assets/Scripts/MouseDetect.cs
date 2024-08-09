@@ -33,7 +33,7 @@ public class MouseDetect : MonoBehaviour
 
             angle += (360f / segments);
         }
-        StartCoroutine(ChaseTick(0.01f));
+        StartCoroutine(ChaseTick());
     }
 
     // Update is called once per frame
@@ -99,11 +99,11 @@ public class MouseDetect : MonoBehaviour
     }
 
     //chasetick sometimes causes drone crashes, not sure why
-    public IEnumerator ChaseTick(float interval)
+    public IEnumerator ChaseTick()
     {
         while(true){
             if((int)mousePos.x >= 0 && (int)mousePos.x < gridRenderer.gridSize && (int)mousePos.y >= 0 && (int)mousePos.y < gridRenderer.gridSize && (mousePos2d != lastTarget || gridRenderer.movingDrones == 0)){
-                Debug.Log(mousePos2d);
+                //Debug.Log(mousePos2d);
                 lastTarget = mousePos2d;
                 foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
                     if(Vector2.Distance(drone.transform.position, mousePos2d) > gridRenderer.gridSize/5 && drone.GetComponent<DroneMove>().targets.Count == 0){
@@ -111,10 +111,8 @@ public class MouseDetect : MonoBehaviour
                         yield return 0;
                     }
                 }
-            } else {
-                Debug.Log("Invalid Location");
             }
-            yield return new WaitForSeconds(interval);
+            yield return 0;
         }
     }
 }
