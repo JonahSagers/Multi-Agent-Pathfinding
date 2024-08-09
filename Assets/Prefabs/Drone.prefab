@@ -119,6 +119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   activate: 0
-  speed: 10
+  speed: 100
   targets: []
   gridRenderer: {fileID: 0}
+  currentPos: {x: 0, y: 0}

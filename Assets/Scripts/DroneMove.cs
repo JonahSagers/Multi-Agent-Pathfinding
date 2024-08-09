@@ -29,10 +29,11 @@ public class DroneMove : MonoBehaviour
                 if(gridRenderer.cells[targets[0]].isUsed > 0){
                     gridRenderer.cells[targets[0]].isUsed -= 1;
                 }
-                targets.RemoveAt(0);
-                if(targets.Count == 0){
+                if(targets.Count == 1){
                     gridRenderer.movingDrones -= 1;
+                    transform.position = targets[0];
                 }
+                targets.RemoveAt(0);
             }
         } else {
             currentPos = new Vector2(Mathf.RoundToInt(transform.position.x),Mathf.RoundToInt(transform.position.y));

@@ -23,6 +23,7 @@ public class RenderGrid : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Time.maximumDeltaTime = 0.1f;
         for(int i = 0; i < droneCount; i++){
             Instantiate(dronePrefab);
         }

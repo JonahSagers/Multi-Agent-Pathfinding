@@ -10,6 +10,7 @@ public class MouseDetect : MonoBehaviour
     public Camera cam;
     public RenderGrid gridRenderer;
     public Vector2Int lastTarget;
+    public Coroutine settle;
     // Start is called before the first frame update
     // IEnumerator Start()
     // {
@@ -27,12 +28,7 @@ public class MouseDetect : MonoBehaviour
 
         if(Input.GetMouseButtonDown(0) && !Input.GetKey(KeyCode.Z) && !Input.GetKey(KeyCode.X)){
             if((int)mousePos.x >= 0 && (int)mousePos.x < gridRenderer.gridSize && (int)mousePos.y >= 0 && (int)mousePos.y < gridRenderer.gridSize){
-                Debug.Log(mousePos2d);
-                lastTarget = mousePos2d;
-                StartCoroutine(Settle(mousePos2d, 3));
-                foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
-                    drone.GetComponent<DroneMove>().MoveTo(mousePos2d);
-                }
+                StartCoroutine(MoveDrones(mousePos2d));
             } else {
                 Debug.Log("Invalid Location");
             }
@@ -52,18 +48,34 @@ public class MouseDetect : MonoBehaviour
         }
     }
 
+    public IEnumerator MoveDrones(Vector2 cellPos)
+    {
+        if(settle != null){
+            StopCoroutine(settle);
+        }
+        Debug.Log(mousePos2d);
+        lastTarget = mousePos2d;
+        StartCoroutine(Settle(mousePos2d, 3));
+        foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
+            drone.GetComponent<DroneMove>().MoveTo(mousePos2d);
+            yield return 0;
+        }
+    }
+
     public IEnumerator Settle(Vector2 cellPos, int iterations)
     {
         iterations -= 1;
-        yield return new WaitForSeconds(0.1f);
+        yield return 0;
         while(gridRenderer.movingDrones > 0) yield return null;
         yield return 0;
         Debug.Log("Settling");
         foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
             drone.GetComponent<DroneMove>().MoveTo(cellPos);
+            yield return 0;
         }
         if(iterations > 0){
-            Settle(cellPos, iterations);
+            yield return new WaitForSeconds(0.1f);
+            settle = StartCoroutine(Settle(cellPos, iterations));
         }
     }
 
