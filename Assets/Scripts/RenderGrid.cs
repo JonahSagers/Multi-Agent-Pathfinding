@@ -189,17 +189,15 @@ public class RenderGrid : MonoBehaviour
                 }
             }
         }
-        return new Vector2(-1,-1);
+        return Vector2.zero;
     }
     public bool FindFuturePath(Vector2 cellPos, Vector2 checkPos, Vector2 startPos, int offset)
     {
         if(!(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos, offset) || checkPos == startPos))){
             return false;
         }
-        for(int j = 0; j < cells[cellPos].tickObstruct.Count; j += 1){
-            if(cells[cellPos].tickObstruct[j] > GetDistance(startPos, checkPos) + offset){
-                return false;
-            }
+        if(Mathf.Max(cells[cellPos].tickObstruct.ToArray()) > GetDistance(startPos, checkPos) + offset){
+            return false;
         }
         return true;
     }
