@@ -114,6 +114,7 @@ public class RenderGrid : MonoBehaviour
 
             if(nextCell == endPos){
                 Cell pathCell = cells[endPos];
+                pathCell.tickObstruct.Add(-1);
 
                 while(pathCell.position != startPos){
                     finalPath.Add(pathCell.position);
@@ -137,21 +138,12 @@ public class RenderGrid : MonoBehaviour
 
     private bool CheckValid(Vector2 cellPos, Vector2 startPos, int offset)
     {
-        for (float x = cellPos.x - 1; x <= 1 + cellPos.x; x += 1)
-        {
-            for (float y = cellPos.y - 1; y <= 1 + cellPos.y; y += 1)
-            {
-                Vector2 neighborPos = new Vector2(x, y);
-                if(cells.TryGetValue(neighborPos, out Cell c)){
-                    for(int i = 0; i < cells[neighborPos].tickObstruct.Count; i += 1){
-                        if(Mathf.Abs((cells[cellPos].fCost + offset) - cells[neighborPos].tickObstruct[i]) < tolerance * 10){
-                            return false;
-                        }
-                    }
-                    if(cells[neighborPos].obstructed && neighborPos != startPos){
-                        return false;
-                    }
-                }
+        if(cells[cellPos].obstructed && cellPos != startPos || cells[cellPos].tickObstruct.Contains(-1)){
+            return false;
+        }
+        for(int i = 0; i < cells[cellPos].tickObstruct.Count; i += 1){
+            if(Mathf.Abs((cells[cellPos].fCost + offset) - cells[cellPos].tickObstruct[i]) < tolerance * 14){
+                return false;
             }
         }
         return true;
@@ -159,8 +151,12 @@ public class RenderGrid : MonoBehaviour
 
     public Vector2 FindNearest(Vector2 cellPos, Vector2 startPos, int offset)
     {
+        if(CheckValid(cellPos, startPos, offset)){
+            return cellPos;
+        }
         float y;
         float x;
+        bool valid;
         Vector2 checkPos;
         //I was so scared to use four for loops because of what my comp sci teachers would say but it's much more efficient than the last method
         for(int i = 0; i < gridSize; i++){
@@ -168,29 +164,61 @@ public class RenderGrid : MonoBehaviour
             for (x = cellPos.x - i; x <= cellPos.x + i; x += 1)
             {
                 checkPos = new Vector2(x, y);
+                valid = true;
                 if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos, offset) || checkPos == startPos)){
-                    return checkPos;
+                    for(int j = 0; j < cells[cellPos].tickObstruct.Count; j += 1){
+                        if(cells[cellPos].tickObstruct[j] > GetDistance(startPos, checkPos)){
+                            valid = false;
+                        }
+                    }
+                    if(valid){
+                        return checkPos;
+                    }
                 }
             }
             for (y = cellPos.y - i; y <= cellPos.y + i; y += 1)
             {
                 checkPos = new Vector2(x, y);
+                valid = true;
                 if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos, offset) || checkPos == startPos)){
-                    return checkPos;
+                    for(int j = 0; j < cells[cellPos].tickObstruct.Count; j += 1){
+                        if(cells[cellPos].tickObstruct[j] > GetDistance(startPos, checkPos)){
+                            valid = false;
+                        }
+                    }
+                    if(valid){
+                        return checkPos;
+                    }
                 }
             }
             for (x = cellPos.x + i; x >= cellPos.x - i; x -= 1)
             {
                 checkPos = new Vector2(x, y);
+                valid = true;
                 if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos, offset) || checkPos == startPos)){
-                    return checkPos;
+                    for(int j = 0; j < cells[cellPos].tickObstruct.Count; j += 1){
+                        if(cells[cellPos].tickObstruct[j] > GetDistance(startPos, checkPos)){
+                            valid = false;
+                        }
+                    }
+                    if(valid){
+                        return checkPos;
+                    }
                 }
             }
             for (y = cellPos.y + i; y >= cellPos.y - i; y -= 1)
             {
                 checkPos = new Vector2(x, y);
+                valid = true;
                 if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos, offset) || checkPos == startPos)){
-                    return checkPos;
+                    for(int j = 0; j < cells[cellPos].tickObstruct.Count; j += 1){
+                        if(cells[cellPos].tickObstruct[j] > GetDistance(startPos, checkPos)){
+                            valid = false;
+                        }
+                    }
+                    if(valid){
+                        return checkPos;
+                    }
                 }
             }
         }
@@ -211,17 +239,23 @@ public class RenderGrid : MonoBehaviour
             {
                 Vector2 neighborPos = new Vector2(x, y);
                 if(cells.TryGetValue(neighborPos, out Cell c) && CheckValid(neighborPos, startPos, offset) && !searchedCells.Contains(neighborPos)){
-                    int GcostToNeighbor = cells[cellPos].gCost + GetDistance(cellPos, neighborPos);
-                    if(GcostToNeighbor < cells[neighborPos].gCost){
-                        Cell neighborNode = cells[neighborPos];
+                    bool valid = true;
+                    if((x != cellPos.x && y != cellPos.y) && !(CheckValid(new Vector2(x, cellPos.y), startPos, offset) && CheckValid(new Vector2(cellPos.x, y), startPos, offset))){
+                        valid = false;
+                    }
+                    if(valid){
+                        int GcostToNeighbor = cells[cellPos].gCost + GetDistance(cellPos, neighborPos);
+                        if(GcostToNeighbor < cells[neighborPos].gCost){
+                            Cell neighborNode = cells[neighborPos];
 
-                        neighborNode.connection = cellPos;
-                        neighborNode.gCost = GcostToNeighbor;
-                        neighborNode.hCost = GetDistance(neighborPos, endPos);
-                        neighborNode.fCost = neighborNode.gCost + neighborNode.hCost;
+                            neighborNode.connection = cellPos;
+                            neighborNode.gCost = GcostToNeighbor;
+                            neighborNode.hCost = GetDistance(neighborPos, endPos);
+                            neighborNode.fCost = neighborNode.gCost + neighborNode.hCost;
 
-                        if(!remainingCells.Contains(neighborPos)){
-                            remainingCells.Add(neighborPos);
+                            if(!remainingCells.Contains(neighborPos)){
+                                remainingCells.Add(neighborPos);
+                            }
                         }
                     }
                 }
@@ -254,7 +288,7 @@ public class RenderGrid : MonoBehaviour
             } else {
                 Gizmos.color = new Color(0f,0f,0f,0.3f);
             }
-            if(finalPath.Contains(kvp.Key) || kvp.Value.isUsed > 0){
+            if(kvp.Value.isUsed > 0){
                 Gizmos.color = new Color(0f,255f,0f,0.3f);
             }
             Gizmos.DrawCube(kvp.Key + (Vector2)transform.position, new Vector2(1, 1));
