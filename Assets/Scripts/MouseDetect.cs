@@ -14,14 +14,13 @@ public class MouseDetect : MonoBehaviour
     public int segments = 50;
     float radius;
     public LineRenderer line;
-    float cooldown;
     // Start is called before the first frame update
     IEnumerator Start()
     {
         yield return 0;
         line.positionCount =  (segments + 1);
 
-        radius = gridRenderer.gridSize/10+0.5f;
+        radius = gridRenderer.gridSize/5+0.5f;
         float x;
         float y;
         float angle = 20f;
@@ -99,24 +98,17 @@ public class MouseDetect : MonoBehaviour
         }
     }
 
-    void FixedUpdate()
-    {
-        if(cooldown > 0){
-            cooldown -= 1;
-        }
-    }
-
     //chasetick sometimes causes drone crashes, not sure why
     public IEnumerator ChaseTick()
     {
         while(true){
-            if((int)mousePos.x >= 0 && (int)mousePos.x < gridRenderer.gridSize && (int)mousePos.y >= 0 && (int)mousePos.y < gridRenderer.gridSize && (mousePos2d != lastTarget || gridRenderer.movingDrones < 1) && cooldown < 1){
+            if((int)mousePos.x >= 0 && (int)mousePos.x < gridRenderer.gridSize && (int)mousePos.y >= 0 && (int)mousePos.y < gridRenderer.gridSize && mousePos2d != lastTarget){
                 //Debug.Log(mousePos2d);
                 gridRenderer.ResetGrid();
                 lastTarget = mousePos2d;
-                cooldown += 5;
+                yield return 0;
                 foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
-                    if(Vector2.Distance(drone.transform.position, lastTarget) > gridRenderer.gridSize/10){
+                    if(Vector2.Distance(drone.transform.position, lastTarget) > gridRenderer.gridSize/5){
                         drone.GetComponent<DroneMove>().MoveTo(lastTarget, 0);
                     }
                 }

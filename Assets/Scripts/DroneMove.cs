@@ -62,7 +62,7 @@ public class DroneMove : MonoBehaviour
                 targets.Add(currentPos);
                 gridRenderer.cells[currentPos].obstructed = true;
                 if(offset < gridRenderer.tolerance * 1000){
-                    MoveTo(cellPos, offset + gridRenderer.tolerance * 200);
+                    MoveTo(cellPos, (offset + 20) * 2);
                 }
             } else {
                 StartCoroutine(lockMotion(offset));
