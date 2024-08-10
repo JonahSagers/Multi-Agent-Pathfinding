@@ -61,12 +61,14 @@ public class DroneMove : MonoBehaviour
                 //this code makes it move to the nearest int while waiting for a path
                 targets.Add(currentPos);
                 gridRenderer.cells[currentPos].obstructed = true;
-                if(offset < gridRenderer.tolerance * 100){
-                    MoveTo(cellPos, offset + (gridRenderer.tolerance * 20));
+                if(offset < gridRenderer.tolerance * 1000){
+                    MoveTo(cellPos, (offset + 20) * 2);
                 }
             } else {
                 StartCoroutine(lockMotion(offset));
             }
+        } else {
+            gridRenderer.cells[currentPos].tickObstruct.Add(-1);
         }
     }
 

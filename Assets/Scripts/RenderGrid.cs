@@ -156,7 +156,6 @@ public class RenderGrid : MonoBehaviour
         }
         float y;
         float x;
-        bool valid;
         Vector2 checkPos;
         //I was so scared to use four for loops because of what my comp sci teachers would say but it's much more efficient than the last method
         for(int i = 0; i < gridSize; i++){
@@ -164,65 +163,45 @@ public class RenderGrid : MonoBehaviour
             for (x = cellPos.x - i; x <= cellPos.x + i; x += 1)
             {
                 checkPos = new Vector2(x, y);
-                valid = true;
-                if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos, offset) || checkPos == startPos)){
-                    for(int j = 0; j < cells[cellPos].tickObstruct.Count; j += 1){
-                        if(cells[cellPos].tickObstruct[j] > GetDistance(startPos, checkPos)){
-                            valid = false;
-                        }
-                    }
-                    if(valid){
-                        return checkPos;
-                    }
+                if(FindFuturePath(cellPos, checkPos, startPos, offset)){
+                    return checkPos;
                 }
             }
             for (y = cellPos.y - i; y <= cellPos.y + i; y += 1)
             {
                 checkPos = new Vector2(x, y);
-                valid = true;
-                if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos, offset) || checkPos == startPos)){
-                    for(int j = 0; j < cells[cellPos].tickObstruct.Count; j += 1){
-                        if(cells[cellPos].tickObstruct[j] > GetDistance(startPos, checkPos)){
-                            valid = false;
-                        }
-                    }
-                    if(valid){
-                        return checkPos;
-                    }
+                if(FindFuturePath(cellPos, checkPos, startPos, offset)){
+                    return checkPos;
                 }
             }
             for (x = cellPos.x + i; x >= cellPos.x - i; x -= 1)
             {
                 checkPos = new Vector2(x, y);
-                valid = true;
-                if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos, offset) || checkPos == startPos)){
-                    for(int j = 0; j < cells[cellPos].tickObstruct.Count; j += 1){
-                        if(cells[cellPos].tickObstruct[j] > GetDistance(startPos, checkPos)){
-                            valid = false;
-                        }
-                    }
-                    if(valid){
-                        return checkPos;
-                    }
+                if(FindFuturePath(cellPos, checkPos, startPos, offset)){
+                    return checkPos;
                 }
             }
             for (y = cellPos.y + i; y >= cellPos.y - i; y -= 1)
             {
                 checkPos = new Vector2(x, y);
-                valid = true;
-                if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos, offset) || checkPos == startPos)){
-                    for(int j = 0; j < cells[cellPos].tickObstruct.Count; j += 1){
-                        if(cells[cellPos].tickObstruct[j] > GetDistance(startPos, checkPos)){
-                            valid = false;
-                        }
-                    }
-                    if(valid){
-                        return checkPos;
-                    }
+                if(FindFuturePath(cellPos, checkPos, startPos, offset)){
+                    return checkPos;
                 }
             }
         }
         return new Vector2(-1,-1);
+    }
+    public bool FindFuturePath(Vector2 cellPos, Vector2 checkPos, Vector2 startPos, int offset)
+    {
+        if(!(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos, offset) || checkPos == startPos))){
+            return false;
+        }
+        for(int j = 0; j < cells[cellPos].tickObstruct.Count; j += 1){
+            if(cells[cellPos].tickObstruct[j] > GetDistance(startPos, checkPos) + offset){
+                return false;
+            }
+        }
+        return true;
     }
 
     private void SearchCellNeighbors(Vector2 cellPos, Vector2 endPos, Vector2 startPos, int offset)
@@ -238,9 +217,11 @@ public class RenderGrid : MonoBehaviour
             for (float y = cellPos.y - 1; y <= 1 + cellPos.y; y += 1)
             {
                 Vector2 neighborPos = new Vector2(x, y);
-                if(cells.TryGetValue(neighborPos, out Cell c) && CheckValid(neighborPos, startPos, offset) && !searchedCells.Contains(neighborPos)){
-                    bool valid = true;
-                    if((x != cellPos.x && y != cellPos.y) && !(CheckValid(new Vector2(x, cellPos.y), startPos, offset) && CheckValid(new Vector2(cellPos.x, y), startPos, offset))){
+                bool valid = true;
+                if(cells.TryGetValue(neighborPos, out Cell c)){
+                    if((x == cellPos.x || y == cellPos.y) && !(CheckValid(neighborPos, startPos, offset) && !searchedCells.Contains(neighborPos))){
+                        valid = false;
+                    } else if((x != cellPos.x && y != cellPos.y && cells.TryGetValue(neighborPos, out Cell d)) && !(CheckValid(new Vector2(x, cellPos.y), startPos, offset) && CheckValid(new Vector2(cellPos.x, y), startPos, offset))){
                         valid = false;
                     }
                     if(valid){
