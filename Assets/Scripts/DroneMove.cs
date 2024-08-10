@@ -43,10 +43,12 @@ public class DroneMove : MonoBehaviour
         if(targets.Count > 0){
             gridRenderer.movingDrones -= 1;
             foreach(Vector2 c in targets){
-                RenderGrid.Cell cell = gridRenderer.cells[c];
-                cell.obstructed = false;
-                if(cell.isUsed > 0){
-                    cell.isUsed -= 1;
+                if(c != currentPos){
+                    RenderGrid.Cell cell = gridRenderer.cells[c];
+                    cell.obstructed = false;
+                    if(cell.isUsed > 0){
+                        cell.isUsed -= 1;
+                    }
                 }
             }
         }
@@ -59,8 +61,8 @@ public class DroneMove : MonoBehaviour
                 //this code makes it move to the nearest int while waiting for a path
                 targets.Add(currentPos);
                 gridRenderer.cells[currentPos].obstructed = true;
-                if(offset < gridRenderer.tolerance * 10){
-                    MoveTo(cellPos, offset + gridRenderer.tolerance);
+                if(offset < gridRenderer.tolerance * 100){
+                    MoveTo(cellPos, offset + (gridRenderer.tolerance * 20));
                 }
             } else {
                 StartCoroutine(lockMotion(offset));
@@ -71,7 +73,7 @@ public class DroneMove : MonoBehaviour
     public IEnumerator lockMotion(float duration)
     {
         locked = true;
-        yield return new WaitForSeconds(duration/100);
+        yield return new WaitForSeconds(duration/(speed*10));
         locked = false;
     }
 }

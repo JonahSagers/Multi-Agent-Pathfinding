@@ -141,7 +141,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: speed
-      value: 100
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: gridRenderer
@@ -210,7 +210,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: speed
-      value: 100
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: gridRenderer
@@ -465,7 +465,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: speed
-      value: 100
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: gridRenderer
@@ -534,7 +534,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: speed
-      value: 100
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: gridRenderer
@@ -603,7 +603,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: speed
-      value: 100
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: gridRenderer
@@ -672,7 +672,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: speed
-      value: 100
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: gridRenderer
@@ -741,7 +741,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: speed
-      value: 100
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: gridRenderer
@@ -967,7 +967,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: speed
-      value: 100
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: gridRenderer
@@ -1036,7 +1036,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: speed
-      value: 100
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3122042116880938234, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: gridRenderer
@@ -1120,6 +1120,7 @@ MonoBehaviour:
   dronePrefab: {fileID: 951876740785091195, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
   gridSize: 50
   droneCount: 0
+  tolerance: 2
   visualize: 1
   movingDrones: 0
   remainingCells: []

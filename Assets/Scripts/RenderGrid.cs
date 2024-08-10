@@ -84,11 +84,6 @@ public class RenderGrid : MonoBehaviour
         remainingCells = new List<Vector2> {startPos};
         finalPath = new List<Vector2>();
 
-        Cell startCell = cells[startPos];
-        startCell.gCost = 0;
-        startCell.hCost = GetDistance(startPos, endPos);
-        startCell.fCost = GetDistance(startPos, endPos);
-
         for(float x = 0; x < gridSize; x += 1){
             for(float y = 0; y < gridSize; y += 1){
                 Vector2 pos = new Vector2(x, y);
@@ -97,6 +92,12 @@ public class RenderGrid : MonoBehaviour
                 cells[pos].hCost = int.MaxValue;
             }
         }
+
+        Cell startCell = cells[startPos];
+        startCell.gCost = 0;
+        startCell.hCost = GetDistance(startPos, endPos);
+        startCell.fCost = GetDistance(startPos, endPos);
+
         //Debug.Log("Moving from "+startPos+" to "+endPos);
         //check all available tiles
         while(remainingCells.Count > 0){
@@ -117,8 +118,7 @@ public class RenderGrid : MonoBehaviour
                 while(pathCell.position != startPos){
                     finalPath.Add(pathCell.position);
                     // pathCell.obstructed = true;
-                    //just to note, the ticks used start from the negative integer limit, not 0.  Don't freak out.
-                    pathCell.tickObstruct.Add(pathCell.fCost);
+                    pathCell.tickObstruct.Add(pathCell.fCost + offset);
                     pathCell.isUsed += 1;
                     pathCell = cells[pathCell.connection];
                 }
@@ -144,7 +144,7 @@ public class RenderGrid : MonoBehaviour
                 Vector2 neighborPos = new Vector2(x, y);
                 if(cells.TryGetValue(neighborPos, out Cell c)){
                     for(int i = 0; i < cells[neighborPos].tickObstruct.Count; i += 1){
-                        if(Mathf.Abs(cells[cellPos].fCost + offset - cells[neighborPos].tickObstruct[i]) < tolerance){
+                        if(Mathf.Abs((cells[cellPos].fCost + offset) - cells[neighborPos].tickObstruct[i]) < tolerance * 10){
                             return false;
                         }
                     }

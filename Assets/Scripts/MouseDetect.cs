@@ -15,26 +15,26 @@ public class MouseDetect : MonoBehaviour
     float radius;
     public LineRenderer line;
     // Start is called before the first frame update
-    // IEnumerator Start()
-    // {
-    //     yield return 0;
-    //     line.positionCount =  (segments + 1);
+    IEnumerator Start()
+    {
+        yield return 0;
+        line.positionCount =  (segments + 1);
 
-    //     radius = gridRenderer.gridSize/5+0.5f;
-    //     float x;
-    //     float y;
-    //     float angle = 20f;
-    //     for (int i = 0; i < (segments + 1); i++)
-    //     {
-    //         x = Mathf.Sin (Mathf.Deg2Rad * angle) * radius;
-    //         y = Mathf.Cos (Mathf.Deg2Rad * angle) * radius;
+        radius = gridRenderer.gridSize/5+0.5f;
+        float x;
+        float y;
+        float angle = 20f;
+        for (int i = 0; i < (segments + 1); i++)
+        {
+            x = Mathf.Sin (Mathf.Deg2Rad * angle) * radius;
+            y = Mathf.Cos (Mathf.Deg2Rad * angle) * radius;
 
-    //         line.SetPosition (i,new Vector3(x,y,0) );
+            line.SetPosition (i,new Vector3(x,y,0) );
 
-    //         angle += (360f / segments);
-    //     }
-    //     StartCoroutine(ChaseTick());
-    // }
+            angle += (360f / segments);
+        }
+        StartCoroutine(ChaseTick());
+    }
 
     // Update is called once per frame
     void Update()
@@ -105,10 +105,10 @@ public class MouseDetect : MonoBehaviour
             if((int)mousePos.x >= 0 && (int)mousePos.x < gridRenderer.gridSize && (int)mousePos.y >= 0 && (int)mousePos.y < gridRenderer.gridSize && (mousePos2d != lastTarget || gridRenderer.movingDrones == 0)){
                 //Debug.Log(mousePos2d);
                 lastTarget = mousePos2d;
+                gridRenderer.ResetGrid();
                 foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
                     if(Vector2.Distance(drone.transform.position, mousePos2d) > gridRenderer.gridSize/5){
                         drone.GetComponent<DroneMove>().MoveTo(mousePos2d, 0);
-                        yield return 0;
                     }
                 }
             }
