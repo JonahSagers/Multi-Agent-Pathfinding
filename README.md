@@ -1,4 +1,4 @@
-Multi Agent Pathfinding!  It's pathfinding, but for multiple agents.
+## Multi Agent Pathfinding!  It's pathfinding, but for multiple agents. ##
 
 # Instructions for use #
 
