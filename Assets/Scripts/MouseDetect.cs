@@ -15,26 +15,26 @@ public class MouseDetect : MonoBehaviour
     float radius;
     public LineRenderer line;
     // Start is called before the first frame update
-    IEnumerator Start()
-    {
-        yield return 0;
-        line.positionCount =  (segments + 1);
+    // IEnumerator Start()
+    // {
+    //     yield return 0;
+    //     line.positionCount =  (segments + 1);
 
-        radius = gridRenderer.gridSize/5+0.5f;
-        float x;
-        float y;
-        float angle = 20f;
-        for (int i = 0; i < (segments + 1); i++)
-        {
-            x = Mathf.Sin (Mathf.Deg2Rad * angle) * radius;
-            y = Mathf.Cos (Mathf.Deg2Rad * angle) * radius;
+    //     radius = gridRenderer.gridSize/5+0.5f;
+    //     float x;
+    //     float y;
+    //     float angle = 20f;
+    //     for (int i = 0; i < (segments + 1); i++)
+    //     {
+    //         x = Mathf.Sin (Mathf.Deg2Rad * angle) * radius;
+    //         y = Mathf.Cos (Mathf.Deg2Rad * angle) * radius;
 
-            line.SetPosition (i,new Vector3(x,y,0) );
+    //         line.SetPosition (i,new Vector3(x,y,0) );
 
-            angle += (360f / segments);
-        }
-        StartCoroutine(ChaseTick());
-    }
+    //         angle += (360f / segments);
+    //     }
+    //     StartCoroutine(ChaseTick());
+    // }
 
     // Update is called once per frame
     void Update()
@@ -74,9 +74,9 @@ public class MouseDetect : MonoBehaviour
         }
         Debug.Log(mousePos2d);
         lastTarget = mousePos2d;
-        StartCoroutine(Settle(mousePos2d, 3));
+        gridRenderer.ResetGrid();
         foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
-            drone.GetComponent<DroneMove>().MoveTo(mousePos2d);
+            drone.GetComponent<DroneMove>().MoveTo(mousePos2d, 0);
         }
         yield return null;
     }
@@ -89,7 +89,7 @@ public class MouseDetect : MonoBehaviour
         yield return 0;
         //Debug.Log("Settling");
         foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
-            drone.GetComponent<DroneMove>().MoveTo(cellPos);
+            drone.GetComponent<DroneMove>().MoveTo(cellPos, 0);
             yield return 0;
         }
         if(iterations > 0){
@@ -106,8 +106,8 @@ public class MouseDetect : MonoBehaviour
                 //Debug.Log(mousePos2d);
                 lastTarget = mousePos2d;
                 foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
-                    if(Vector2.Distance(drone.transform.position, mousePos2d) > gridRenderer.gridSize/5 && drone.GetComponent<DroneMove>().targets.Count == 0){
-                        drone.GetComponent<DroneMove>().MoveTo(mousePos2d);
+                    if(Vector2.Distance(drone.transform.position, mousePos2d) > gridRenderer.gridSize/5){
+                        drone.GetComponent<DroneMove>().MoveTo(mousePos2d, 0);
                         yield return 0;
                     }
                 }

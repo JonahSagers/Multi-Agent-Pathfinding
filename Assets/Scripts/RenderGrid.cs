@@ -8,9 +8,9 @@ public class RenderGrid : MonoBehaviour
     public GameObject dronePrefab;
     public int gridSize;
     public int droneCount;
+    public int tolerance;
     public Dictionary<Vector2, Cell> cells;
     public bool visualize;
-    public bool regenerate;
     public int movingDrones;
 
     public List<Vector2> remainingCells;
@@ -29,15 +29,6 @@ public class RenderGrid : MonoBehaviour
             Instantiate(dronePrefab);
         }
         GenerateGrid();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if(regenerate){
-            GenerateGrid();
-            regenerate = false;
-        }
     }
 
     public void GenerateGrid()
@@ -69,7 +60,7 @@ public class RenderGrid : MonoBehaviour
         public Vector2 connection;
         public bool obstructed;
         public int isUsed; //number of drones using the tile, currently only for debugging
-        public List<int> tickObstruct;
+        public List<int> tickObstruct = new List<int> {};
 
         public Cell(Vector2 pos)
         {
@@ -77,7 +68,17 @@ public class RenderGrid : MonoBehaviour
         }
     }
 
-    public List<Vector2> FindPath(Vector2 startPos, Vector2 endPos)
+    public void ResetGrid()
+    {
+        for(float x = 0; x < gridSize; x += 1){
+            for(float y = 0; y < gridSize; y += 1){
+                Vector2 pos = new Vector2(x, y);
+                cells[pos].tickObstruct = new List<int> {};
+            }
+        }
+    }
+
+    public List<Vector2> FindPath(Vector2 startPos, Vector2 endPos, int offset)
     {
         searchedCells = new List<Vector2>();
         remainingCells = new List<Vector2> {startPos};
@@ -115,38 +116,48 @@ public class RenderGrid : MonoBehaviour
 
                 while(pathCell.position != startPos){
                     finalPath.Add(pathCell.position);
-                    pathCell.obstructed = true;
+                    // pathCell.obstructed = true;
+                    //just to note, the ticks used start from the negative integer limit, not 0.  Don't freak out.
+                    pathCell.tickObstruct.Add(pathCell.fCost);
                     pathCell.isUsed += 1;
                     pathCell = cells[pathCell.connection];
                 }
                 finalPath.Add(startPos);
+                cells[finalPath[0]].obstructed = true;
                 finalPath.Reverse();
                 movingDrones += 1;
                 return finalPath;
             }
-            SearchCellNeighbors(nextCell, endPos, startPos);
+            SearchCellNeighbors(nextCell, endPos, startPos, offset);
         }
         //Debug.Log("Path is obstructed");
         return new List<Vector2> {};
     }
 
 
-    private bool CheckValid(Vector2 cellPos, Vector2 startPos)
+    private bool CheckValid(Vector2 cellPos, Vector2 startPos, int offset)
     {
         for (float x = cellPos.x - 1; x <= 1 + cellPos.x; x += 1)
         {
             for (float y = cellPos.y - 1; y <= 1 + cellPos.y; y += 1)
             {
                 Vector2 neighborPos = new Vector2(x, y);
-                if(cells.TryGetValue(neighborPos, out Cell c) && cells[neighborPos].obstructed && neighborPos != startPos){
-                    return false;
+                if(cells.TryGetValue(neighborPos, out Cell c)){
+                    for(int i = 0; i < cells[neighborPos].tickObstruct.Count; i += 1){
+                        if(Mathf.Abs(cells[cellPos].fCost + offset - cells[neighborPos].tickObstruct[i]) < tolerance){
+                            return false;
+                        }
+                    }
+                    if(cells[neighborPos].obstructed && neighborPos != startPos){
+                        return false;
+                    }
                 }
             }
         }
         return true;
     }
 
-    public Vector2 FindNearest(Vector2 cellPos, Vector2 startPos)
+    public Vector2 FindNearest(Vector2 cellPos, Vector2 startPos, int offset)
     {
         float y;
         float x;
@@ -157,28 +168,28 @@ public class RenderGrid : MonoBehaviour
             for (x = cellPos.x - i; x <= cellPos.x + i; x += 1)
             {
                 checkPos = new Vector2(x, y);
-                if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos) || checkPos == startPos)){
+                if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos, offset) || checkPos == startPos)){
                     return checkPos;
                 }
             }
             for (y = cellPos.y - i; y <= cellPos.y + i; y += 1)
             {
                 checkPos = new Vector2(x, y);
-                if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos) || checkPos == startPos)){
+                if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos, offset) || checkPos == startPos)){
                     return checkPos;
                 }
             }
             for (x = cellPos.x + i; x >= cellPos.x - i; x -= 1)
             {
                 checkPos = new Vector2(x, y);
-                if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos) || checkPos == startPos)){
+                if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos, offset) || checkPos == startPos)){
                     return checkPos;
                 }
             }
             for (y = cellPos.y + i; y >= cellPos.y - i; y -= 1)
             {
                 checkPos = new Vector2(x, y);
-                if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos) || checkPos == startPos)){
+                if(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos, offset) || checkPos == startPos)){
                     return checkPos;
                 }
             }
@@ -186,11 +197,11 @@ public class RenderGrid : MonoBehaviour
         return new Vector2(-1,-1);
     }
 
-    private void SearchCellNeighbors(Vector2 cellPos, Vector2 endPos, Vector2 startPos)
+    private void SearchCellNeighbors(Vector2 cellPos, Vector2 endPos, Vector2 startPos, int offset)
     {
         //first check if the tile is touching a wall
         //might only need to check cardinal directions, but this version is expandable to demand a wider berth
-        if(!CheckValid(cellPos, startPos)){
+        if(!CheckValid(cellPos, startPos, offset)){
             return;
         }
         //check neighbors and add them to the queue if eligible
@@ -199,7 +210,7 @@ public class RenderGrid : MonoBehaviour
             for (float y = cellPos.y - 1; y <= 1 + cellPos.y; y += 1)
             {
                 Vector2 neighborPos = new Vector2(x, y);
-                if(cells.TryGetValue(neighborPos, out Cell c) && !searchedCells.Contains(neighborPos) && (!cells[neighborPos].obstructed || neighborPos == startPos)){
+                if(cells.TryGetValue(neighborPos, out Cell c) && CheckValid(neighborPos, startPos, offset) && !searchedCells.Contains(neighborPos)){
                     int GcostToNeighbor = cells[cellPos].gCost + GetDistance(cellPos, neighborPos);
                     if(GcostToNeighbor < cells[neighborPos].gCost){
                         Cell neighborNode = cells[neighborPos];
