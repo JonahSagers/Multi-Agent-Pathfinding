@@ -145,7 +145,7 @@ public class RenderGrid : MonoBehaviour
             return false;
         }
         for(int i = 0; i < cells[cellPos].tickObstruct.Count; i += 1){
-            if(Mathf.Abs((cells[cellPos].gCost + offset) - cells[cellPos].tickObstruct[i]) <= tolerance * 15 || cells[cellPos].tickObstruct[i] == -1){
+            if(Mathf.Abs((cells[cellPos].gCost + offset) - cells[cellPos].tickObstruct[i]) <= tolerance * 15){
                 return false;
             }
         }

@@ -53,7 +53,7 @@ public class DroneMove : MonoBehaviour
             }
         }
         Vector2 targetPos = gridRenderer.FindNearest(cellPos, currentPos, offset);
-        if(targetPos != currentPos){
+        if(Vector2.Distance(targetPos, currentPos) > gridRenderer.gridSize/10){
             if(targetPos != new Vector2(-1,-1)){
                 targets = gridRenderer.FindPath(currentPos, targetPos, offset);
             }
