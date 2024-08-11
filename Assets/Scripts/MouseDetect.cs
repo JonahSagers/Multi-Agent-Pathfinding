@@ -33,7 +33,7 @@ public class MouseDetect : MonoBehaviour
 
             angle += (360f / segments);
         }
-        StartCoroutine(ChaseTick());
+        //StartCoroutine(ChaseTick());
     }
 
     // Update is called once per frame

@@ -9,6 +9,7 @@ public class DroneMove : MonoBehaviour
     public RenderGrid gridRenderer;
     public Vector2 currentPos;
     public bool locked;
+    public LineRenderer line;
     // Start is called before the first frame update
     IEnumerator Start()
     {
@@ -21,6 +22,7 @@ public class DroneMove : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        line.SetPosition(0, transform.position);
         if(targets.Count > 0 && !locked){
             int nextIndex = Mathf.Min(1,targets.Count-1);
             transform.position = Vector3.MoveTowards(transform.position, new Vector3(targets[nextIndex].x,targets[nextIndex].y,transform.position.z), Time.deltaTime * speed);
@@ -29,7 +31,12 @@ public class DroneMove : MonoBehaviour
                     if(gridRenderer.cells[targets[0]].isUsed > 0){
                         gridRenderer.cells[targets[0]].isUsed -= 1;
                     }
+                    for (int i = 1; i < (targets.Count-1); i++)
+                    {
+                        line.SetPosition (i,targets[i+1]);
+                    }
                 } else {
+                    line.enabled = false;
                     gridRenderer.movingDrones -= 1;
                     transform.position = targets[0];
                 }
@@ -60,6 +67,7 @@ public class DroneMove : MonoBehaviour
             if(targets.Count == 0 || targetPos == new Vector2(-1,-1)){
                 //drones without a valid path sometimes get stuck at a weird decimal position, and don't count their tile as occupied
                 //this code makes it move to the nearest int while waiting for a path
+                gridRenderer.cells[currentPos].tickObstruct.Add(offset);
                 if(offset < gridRenderer.tolerance * 500){
                     MoveTo(cellPos, offset + gridRenderer.tolerance * 10);
                 }
@@ -75,6 +83,13 @@ public class DroneMove : MonoBehaviour
     {
         gridRenderer.movingDrones += 1;
         locked = true;
+        line.positionCount =  (targets.Count);
+        line.SetPosition(0, currentPos);
+        for (int i = 0; i < (targets.Count); i++)
+        {
+            line.SetPosition (i,targets[i]);
+        }
+        line.enabled = true;
         yield return new WaitForSeconds(duration/(speed*10));
         locked = false;
     }

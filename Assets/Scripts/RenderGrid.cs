@@ -6,6 +6,8 @@ public class RenderGrid : MonoBehaviour
 {
     public GameObject cam;
     public GameObject dronePrefab;
+    public GameObject background;
+    public GameObject cubePre;
     public int gridSize;
     public int droneCount;
     public int tolerance;
@@ -33,14 +35,21 @@ public class RenderGrid : MonoBehaviour
 
     public void GenerateGrid()
     {
-        cam.transform.position = new Vector3(gridSize/2,gridSize/2,-gridSize*0.9f);
+        cam.transform.position = new Vector3(gridSize/2-0.5f,gridSize/2-0.5f,-gridSize*0.9f);
         cells = new Dictionary<Vector2, Cell>();
+        background.transform.localScale = new Vector3(gridSize+1.5f, gridSize+1.5f, 1);
+        background.transform.position = new Vector3(gridSize/2-0.5f, gridSize/2-0.5f, 0.5f);
+        GameObject[] cubes = GameObject.FindGameObjectsWithTag("Grid");
+        foreach(GameObject cube in cubes){
+            Destroy(cube);
+        }
         for(float x = 0; x < gridSize; x += 1){
             for(float y = 0; y < gridSize; y += 1){
                 Vector2 pos = new Vector2(x, y);
                 cells.Add(pos, new Cell(pos));
                 if(lidarSample.Contains(pos)){
                     cells[pos].obstructed = true;
+                    Instantiate(cubePre, new Vector3(pos.x, pos.y, 0), Quaternion.identity);
                 }
                 // if (Random.value >= 0.95f){
                 //     cells[pos].obstructed = true;
@@ -77,7 +86,7 @@ public class RenderGrid : MonoBehaviour
             }
         }
         foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
-            cells[new Vector2(Mathf.RoundToInt(drone.transform.position.x),Mathf.RoundToInt(drone.transform.position.y))].tickObstruct.Add(-1);
+            cells[new Vector2(Mathf.RoundToInt(drone.transform.position.x),Mathf.RoundToInt(drone.transform.position.y))].tickObstruct.Add(0);
         }
     }
 
