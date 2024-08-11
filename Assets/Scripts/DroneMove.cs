@@ -10,9 +10,13 @@ public class DroneMove : MonoBehaviour
     public Vector2 currentPos;
     public bool locked;
     // Start is called before the first frame update
-    void Start()
+    IEnumerator Start()
     {
+        yield return 0;
         gridRenderer = GameObject.Find("Grid").GetComponent<RenderGrid>();
+        currentPos = new Vector2(Mathf.RoundToInt(transform.position.x),Mathf.RoundToInt(transform.position.y));
+        gridRenderer.cells[currentPos].obstructed = true;
+        gridRenderer.cells[currentPos].tickObstruct.Add(-1);
     }
 
     // Update is called once per frame
@@ -52,14 +56,17 @@ public class DroneMove : MonoBehaviour
                 }
             }
         }
-        cellPos = gridRenderer.FindNearest(cellPos, currentPos, offset);
-        if(cellPos != currentPos){
-            targets = gridRenderer.FindPath(currentPos, cellPos, offset);
-            if(targets.Count == 0){
+        Vector2 targetPos = gridRenderer.FindNearest(cellPos, currentPos, offset);
+        if(targetPos != currentPos){
+            if(targetPos != new Vector2(-1,-1)){
+                targets = gridRenderer.FindPath(currentPos, targetPos, offset);
+            }
+            if(targets.Count == 0 || targetPos == new Vector2(-1,-1)){
                 gridRenderer.movingDrones += 1;
                 //drones without a valid path sometimes get stuck at a weird decimal position, and don't count their tile as occupied
                 //this code makes it move to the nearest int while waiting for a path
                 targets.Add(currentPos);
+                gridRenderer.cells[currentPos].tickObstruct.Add(-1);
                 gridRenderer.cells[currentPos].obstructed = true;
                 if(offset < gridRenderer.tolerance * 1000){
                     MoveTo(cellPos, offset + gridRenderer.tolerance * 200);

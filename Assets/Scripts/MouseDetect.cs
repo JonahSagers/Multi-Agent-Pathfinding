@@ -110,11 +110,12 @@ public class MouseDetect : MonoBehaviour
     public IEnumerator ChaseTick()
     {
         while(true){
-            if((int)mousePos.x >= 0 && (int)mousePos.x < gridRenderer.gridSize && (int)mousePos.y >= 0 && (int)mousePos.y < gridRenderer.gridSize && (mousePos2d != lastTarget || gridRenderer.movingDrones < 1) && cooldown < 1){
+            if((int)mousePos.x >= 0 && (int)mousePos.x < gridRenderer.gridSize && (int)mousePos.y >= 0 && (int)mousePos.y < gridRenderer.gridSize && cooldown < 1 && gridRenderer.movingDrones < 1){
                 //Debug.Log(mousePos2d);
                 gridRenderer.ResetGrid();
                 lastTarget = mousePos2d;
                 cooldown += 5;
+                yield return 0;
                 foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
                     if(Vector2.Distance(drone.transform.position, lastTarget) > gridRenderer.gridSize/10){
                         drone.GetComponent<DroneMove>().MoveTo(lastTarget, 0);

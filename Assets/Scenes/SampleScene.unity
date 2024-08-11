@@ -161,7 +161,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8375519471360530943, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8375519471360530943, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: m_LocalPosition.y
@@ -242,7 +242,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8375519471360530943, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 9
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8375519471360530943, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: m_LocalPosition.y
@@ -509,7 +509,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8375519471360530943, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 44
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 8375519471360530943, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: m_LocalPosition.y
@@ -590,7 +590,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8375519471360530943, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 39
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 8375519471360530943, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: m_LocalPosition.y
@@ -671,7 +671,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8375519471360530943, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 29
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 8375519471360530943, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: m_LocalPosition.y
@@ -752,7 +752,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8375519471360530943, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 19
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 8375519471360530943, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: m_LocalPosition.y
@@ -833,7 +833,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8375519471360530943, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 34
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 8375519471360530943, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1071,7 +1071,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8375519471360530943, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 24
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 8375519471360530943, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1152,7 +1152,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8375519471360530943, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 14
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8375519471360530943, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1269,6 +1269,30 @@ MonoBehaviour:
   - {x: 20, y: 5}
   - {x: 16, y: 3}
   - {x: 17, y: 8}
+  - {x: 2, y: 40}
+  - {x: 4, y: 40}
+  - {x: 6, y: 40}
+  - {x: 8, y: 40}
+  - {x: 10, y: 40}
+  - {x: 12, y: 40}
+  - {x: 14, y: 40}
+  - {x: 16, y: 40}
+  - {x: 18, y: 40}
+  - {x: 20, y: 40}
+  - {x: 22, y: 40}
+  - {x: 24, y: 40}
+  - {x: 26, y: 40}
+  - {x: 28, y: 40}
+  - {x: 30, y: 40}
+  - {x: 32, y: 40}
+  - {x: 34, y: 40}
+  - {x: 36, y: 40}
+  - {x: 38, y: 40}
+  - {x: 40, y: 40}
+  - {x: 42, y: 40}
+  - {x: 44, y: 40}
+  - {x: 46, y: 40}
+  - {x: 48, y: 40}
 --- !u!4 &2074590937
 Transform:
   m_ObjectHideFlags: 0
