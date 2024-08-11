@@ -77,7 +77,7 @@ public class MouseDetect : MonoBehaviour
         lastTarget = mousePos2d;
         gridRenderer.ResetGrid();
         foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
-            drone.GetComponent<DroneMove>().MoveTo(mousePos2d, 0);
+            drone.GetComponent<DroneMove>().MoveTo(lastTarget, 0);
         }
         yield return null;
     }

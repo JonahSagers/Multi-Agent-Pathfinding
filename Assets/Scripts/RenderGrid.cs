@@ -54,8 +54,8 @@ public class RenderGrid : MonoBehaviour
         public Vector2 position;
         //the algorithm picks the lowest value to travel along
         //so invalid points have to start at max and not zero
-        public int fCost = int.MaxValue; //distance to start
-        public int gCost = int.MaxValue; //distance to end
+        public int fCost = int.MaxValue; //distance to end
+        public int gCost = int.MaxValue; //distance to start
         public int hCost = int.MaxValue; //total cost
         public Vector2 connection;
         public bool obstructed;
@@ -75,6 +75,9 @@ public class RenderGrid : MonoBehaviour
                 Vector2 pos = new Vector2(x, y);
                 cells[pos].tickObstruct = new List<int> {};
             }
+        }
+        foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
+            cells[new Vector2(Mathf.RoundToInt(drone.transform.position.x),Mathf.RoundToInt(drone.transform.position.y))].tickObstruct.Add(-1);
         }
     }
 
@@ -115,18 +118,15 @@ public class RenderGrid : MonoBehaviour
             if(nextCell == endPos){
                 Cell pathCell = cells[endPos];
                 pathCell.tickObstruct.Add(-1);
-
                 while(pathCell.position != startPos){
                     finalPath.Add(pathCell.position);
                     // pathCell.obstructed = true;
-                    pathCell.tickObstruct.Add(pathCell.fCost + offset);
+                    pathCell.tickObstruct.Add(pathCell.gCost + offset);
                     pathCell.isUsed += 1;
                     pathCell = cells[pathCell.connection];
                 }
                 finalPath.Add(startPos);
-                cells[finalPath[0]].obstructed = true;
                 finalPath.Reverse();
-                movingDrones += 1;
                 return finalPath;
             }
             SearchCellNeighbors(nextCell, endPos, startPos, offset);
@@ -138,11 +138,14 @@ public class RenderGrid : MonoBehaviour
 
     private bool CheckValid(Vector2 cellPos, Vector2 startPos, int offset)
     {
-        if(cells[cellPos].obstructed && cellPos != startPos || cells[cellPos].tickObstruct.Contains(-1)){
+        if(cellPos == startPos){
+            return true;
+        }
+        if(cells[cellPos].obstructed || cells[cellPos].tickObstruct.Contains(-1)){
             return false;
         }
         for(int i = 0; i < cells[cellPos].tickObstruct.Count; i += 1){
-            if(Mathf.Abs((cells[cellPos].fCost + offset) - cells[cellPos].tickObstruct[i]) < tolerance * 14){
+            if(Mathf.Abs((cells[cellPos].gCost + offset) - cells[cellPos].tickObstruct[i]) <= tolerance * 15 || cells[cellPos].tickObstruct[i] == -1){
                 return false;
             }
         }
@@ -196,12 +199,12 @@ public class RenderGrid : MonoBehaviour
         if(!(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos, offset) || checkPos == startPos))){
             return false;
         }
-        if(Mathf.Max(cells[cellPos].tickObstruct.ToArray()) > GetDistance(startPos, checkPos)){
+        if(Mathf.Max(cells[checkPos].tickObstruct.ToArray()) > GetDistance(startPos, checkPos)  || cells[checkPos].tickObstruct.Contains(-1)){
             return false;
         }
-        if(Vector2.Distance(checkPos, cellPos) > gridSize/10){
-            return false;
-        }
+        // if(Vector2.Distance(checkPos, cellPos) > gridSize/10){
+        //     return false;
+        // }
         return true;
     }
 
@@ -218,11 +221,11 @@ public class RenderGrid : MonoBehaviour
             for (float y = cellPos.y - 1; y <= 1 + cellPos.y; y += 1)
             {
                 Vector2 neighborPos = new Vector2(x, y);
-                bool valid = true;
                 if(cells.TryGetValue(neighborPos, out Cell c)){
+                    bool valid = true;
                     if((x == cellPos.x || y == cellPos.y) && !(CheckValid(neighborPos, startPos, offset) && !searchedCells.Contains(neighborPos))){
                         valid = false;
-                    } else if((x != cellPos.x && y != cellPos.y && cells.TryGetValue(neighborPos, out Cell d)) && !(CheckValid(new Vector2(x, cellPos.y), startPos, offset) && CheckValid(new Vector2(cellPos.x, y), startPos, offset))){
+                    } else if((x != cellPos.x && y != cellPos.y) && (!CheckValid(new Vector2(x, cellPos.y), startPos, offset) || !CheckValid(new Vector2(cellPos.x, y), startPos, offset))){
                         valid = false;
                     }
                     if(valid){
