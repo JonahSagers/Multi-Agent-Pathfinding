@@ -14,6 +14,10 @@ public class MouseDetect : MonoBehaviour
     float radius;
     public LineRenderer line;
     public float cooldown;
+    public List<Vector2> payload;
+    public string payloadString;
+    public string payloadTemp;
+    public UdpSocket socket;
     // Start is called before the first frame update
     IEnumerator Start()
     {
@@ -75,8 +79,25 @@ public class MouseDetect : MonoBehaviour
         Debug.Log(cellPos);
         gridRenderer.ResetGrid();
         foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
-            drone.GetComponent<DroneMove>().MoveTo(cellPos, 0);
+            payload = drone.GetComponent<DroneMove>().MoveTo(cellPos, 0);
+            payloadString = "";
+            //TODO: only send the vertices required to draw the line, not every point it intersects
+            for(int i = 0; i < payload.Count; i++){
+                payloadTemp = ((int)payload[i].x).ToString();
+                if(payloadTemp.Length < 2){
+                    payloadTemp = '0' + payloadTemp;
+                }
+                payloadString += payloadTemp;
+                payloadTemp = ((int)payload[i].y).ToString();
+                if(payloadTemp.Length < 2){
+                    payloadTemp = '0' + payloadTemp;
+                }
+                payloadString += payloadTemp;
+                socket.SendData(payloadString);
+                //payloadString += Vector2Int.RoundToInt(payload[i]).ToString();
+            }
         }
+        socket.SendData("complete");
         yield return null;
     }
 

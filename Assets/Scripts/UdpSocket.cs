@@ -13,6 +13,7 @@ public class UdpSocket : MonoBehaviour
     [SerializeField] string IP = "127.0.0.1"; // local host
     [SerializeField] int rxPort = 8000; // port to receive data from Python on
     [SerializeField] int txPort = 8001; // port to send data to Python on
+    public RenderGrid gridRenderer;
 
     UdpClient client;
     IPEndPoint remoteEndPoint;
@@ -32,16 +33,15 @@ public class UdpSocket : MonoBehaviour
         }
     }
 
-    void Start()
+    IEnumerator Start()
     {
         remoteEndPoint = new IPEndPoint(IPAddress.Parse(IP), txPort);
 
         client = new UdpClient(rxPort);
-        SendData("HIIII");
-
-        //receiveThread = new Thread(new ThreadStart(ReceiveData));
-        // receiveThread.IsBackground = true;
-        // receiveThread.Start();
+        SendData("Size: " + gridRenderer.gridSize);
+        //made this a coroutine with the intention of having more data to send
+        yield return 0;
+        SendData("Connection Established");
     }
 
     // Receive data, update packets received

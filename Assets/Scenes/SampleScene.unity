@@ -1020,6 +1020,10 @@ MonoBehaviour:
   segments: 50
   line: {fileID: 1727870012}
   cooldown: 0
+  payload: []
+  payloadString: 
+  payloadTemp: 
+  socket: {fileID: 2074590938}
 --- !u!4 &1727870011
 Transform:
   m_ObjectHideFlags: 0
@@ -1311,6 +1315,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2074590937}
   - component: {fileID: 2074590936}
+  - component: {fileID: 2074590938}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -1334,7 +1339,7 @@ MonoBehaviour:
   dronePrefab: {fileID: 951876740785091195, guid: 0ca42976a0895264b918a81aca885a60, type: 3}
   background: {fileID: 1440425018}
   cubePre: {fileID: 5077141301834764497, guid: 82f39183de8694bd9b4dfb8bdd793b4d, type: 3}
-  gridSize: 50
+  gridSize: 25
   droneCount: 0
   tolerance: 2
   visualize: 1
@@ -1416,6 +1421,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2074590938
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2074590935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e67c78cc3ab974fe1b9f5b473cabbd39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isTxStarted: 0
+  IP: 127.0.0.1
+  rxPort: 8000
+  txPort: 8001
+  gridRenderer: {fileID: 2074590936}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
