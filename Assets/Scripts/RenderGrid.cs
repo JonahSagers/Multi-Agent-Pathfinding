@@ -13,7 +13,9 @@ public class RenderGrid : MonoBehaviour
     public int tolerance;
     public Dictionary<Vector2, Cell> cells;
     public bool visualize;
+    public bool noise;
     public int movingDrones;
+    public float maxhCost;
 
     public List<Vector2> remainingCells;
     public List<Vector2> searchedCells;
@@ -51,9 +53,10 @@ public class RenderGrid : MonoBehaviour
                     cells[pos].obstructed = true;
                     Instantiate(cubePre, new Vector3(pos.x, pos.y, 0), Quaternion.identity);
                 }
-                // if (Random.value >= 0.95f){
-                //     cells[pos].obstructed = true;
-                // }
+                if(noise && Random.value >= 0.8f){
+                    cells[pos].obstructed = true;
+                    Instantiate(cubePre, new Vector3(pos.x, pos.y, 0), Quaternion.identity);
+                }
             }
         }
     }
@@ -109,6 +112,11 @@ public class RenderGrid : MonoBehaviour
         startCell.gCost = 0;
         startCell.hCost = GetDistance(startPos, endPos);
         startCell.fCost = GetDistance(startPos, endPos);
+        if(offset < tolerance * 200){
+            maxhCost = startCell.hCost * (1.4f + offset/50);
+        } else {
+            maxhCost = int.MaxValue;
+        }
 
         //Debug.Log("Moving from "+startPos+" to "+endPos);
         //check all available tiles
@@ -244,7 +252,7 @@ public class RenderGrid : MonoBehaviour
                             neighborNode.hCost = GetDistance(neighborPos, endPos);
                             neighborNode.fCost = neighborNode.gCost + neighborNode.hCost;
 
-                            if(!remainingCells.Contains(neighborPos)){
+                            if(!remainingCells.Contains(neighborPos) && cells[neighborPos].hCost < maxhCost){
                                 remainingCells.Add(neighborPos);
                             }
                         }

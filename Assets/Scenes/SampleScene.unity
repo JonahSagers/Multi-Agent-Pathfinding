@@ -1343,7 +1343,9 @@ MonoBehaviour:
   droneCount: 0
   tolerance: 2
   visualize: 1
+  noise: 0
   movingDrones: 0
+  maxhCost: 0
   remainingCells: []
   searchedCells: []
   finalPath: []

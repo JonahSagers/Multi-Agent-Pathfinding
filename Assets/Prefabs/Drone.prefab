@@ -119,7 +119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4307e0f21c968c145bf1f9ded40b4072, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 100
+  speed: 25
   targets: []
   gridRenderer: {fileID: 0}
   currentPos: {x: 0, y: 0}

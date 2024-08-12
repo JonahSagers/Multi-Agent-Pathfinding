@@ -76,7 +76,7 @@ public class MouseDetect : MonoBehaviour
         if(settle != null){
             StopCoroutine(settle);
         }
-        Debug.Log(cellPos);
+        //Debug.Log(cellPos);
         gridRenderer.ResetGrid();
         foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
             payload = drone.GetComponent<DroneMove>().MoveTo(cellPos, 0);
@@ -95,6 +95,7 @@ public class MouseDetect : MonoBehaviour
                 payloadString += payloadTemp;
                 //payloadString += Vector2Int.RoundToInt(payload[i]).ToString();
             }
+            //print(payloadString);
             socket.SendData(payloadString);
         }
         socket.SendData("complete");
@@ -130,7 +131,7 @@ public class MouseDetect : MonoBehaviour
     {
         while(true){
             if((int)mousePos.x >= 0 && (int)mousePos.x < gridRenderer.gridSize && (int)mousePos.y >= 0 && (int)mousePos.y < gridRenderer.gridSize && cooldown < 1 && gridRenderer.movingDrones < 1){
-                Debug.Log(mousePos2d);
+                //Debug.Log(mousePos2d);
                 //cooldown += 20;
                 StartCoroutine(MoveDrones(mousePos2d));
             }

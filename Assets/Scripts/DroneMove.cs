@@ -70,8 +70,11 @@ public class DroneMove : MonoBehaviour
                 //drones without a valid path sometimes get stuck at a weird decimal position, and don't count their tile as occupied
                 //this code makes it move to the nearest int while waiting for a path
                 if(offset < gridRenderer.tolerance * 200){
-                    MoveTo(cellPos, offset + gridRenderer.tolerance * 20);
+                    MoveTo(cellPos, offset + gridRenderer.tolerance * 50);
                 }
+                //else if(offset < gridRenderer.tolerance * 1000){
+                //     MoveTo(cellPos, offset + gridRenderer.tolerance * 100);
+                // }
             } else {
                 if(motion != null){
                     StopCoroutine(motion);
