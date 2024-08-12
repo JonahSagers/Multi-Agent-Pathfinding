@@ -170,7 +170,7 @@ public class RenderGrid : MonoBehaviour
         float x;
         Vector2 checkPos;
         //I was so scared to use four for loops because of what my comp sci teachers would say but it's much more efficient than the last method
-        for(int i = 0; i < gridSize; i++){
+        for(int i = 0; i < gridSize/5; i++){
             y = cellPos.y -i;
             for (x = cellPos.x - i; x <= cellPos.x + i; x += 1)
             {
@@ -211,9 +211,6 @@ public class RenderGrid : MonoBehaviour
         if(Mathf.Max(cells[checkPos].tickObstruct.ToArray()) > GetDistance(startPos, checkPos)  || cells[checkPos].tickObstruct.Contains(-1)){
             return false;
         }
-        // if(Vector2.Distance(checkPos, cellPos) > gridSize/10){
-        //     return false;
-        // }
         return true;
     }
 
@@ -232,7 +229,7 @@ public class RenderGrid : MonoBehaviour
                 Vector2 neighborPos = new Vector2(x, y);
                 if(cells.TryGetValue(neighborPos, out Cell c)){
                     bool valid = true;
-                    if((x == cellPos.x || y == cellPos.y) && !(CheckValid(neighborPos, startPos, offset) && !searchedCells.Contains(neighborPos))){
+                    if(!(CheckValid(neighborPos, startPos, offset)) || searchedCells.Contains(neighborPos)){
                         valid = false;
                     } else if((x != cellPos.x && y != cellPos.y) && (!CheckValid(new Vector2(x, cellPos.y), startPos, offset) || !CheckValid(new Vector2(cellPos.x, y), startPos, offset))){
                         valid = false;

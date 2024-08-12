@@ -93,9 +93,9 @@ public class MouseDetect : MonoBehaviour
                     payloadTemp = '0' + payloadTemp;
                 }
                 payloadString += payloadTemp;
-                socket.SendData(payloadString);
                 //payloadString += Vector2Int.RoundToInt(payload[i]).ToString();
             }
+            socket.SendData(payloadString);
         }
         socket.SendData("complete");
         yield return null;

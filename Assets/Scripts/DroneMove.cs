@@ -10,6 +10,7 @@ public class DroneMove : MonoBehaviour
     public Vector2 currentPos;
     public bool locked;
     public LineRenderer line;
+    public Coroutine motion;
     // Start is called before the first frame update
     IEnumerator Start()
     {
@@ -60,6 +61,7 @@ public class DroneMove : MonoBehaviour
             }
         }
         Vector2 targetPos = gridRenderer.FindNearest(cellPos, currentPos, offset);
+        gridRenderer.cells[currentPos].tickObstruct.Add(offset);
         if(Vector2.Distance(targetPos, currentPos) > gridRenderer.gridSize/10){
             if(targetPos != new Vector2(-1,-1)){
                 targets = gridRenderer.FindPath(currentPos, targetPos, offset);
@@ -67,12 +69,14 @@ public class DroneMove : MonoBehaviour
             if(targets.Count == 0 || targetPos == new Vector2(-1,-1)){
                 //drones without a valid path sometimes get stuck at a weird decimal position, and don't count their tile as occupied
                 //this code makes it move to the nearest int while waiting for a path
-                gridRenderer.cells[currentPos].tickObstruct.Add(offset);
                 if(offset < gridRenderer.tolerance * 200){
                     MoveTo(cellPos, offset + gridRenderer.tolerance * 20);
                 }
             } else {
-                StartCoroutine(lockMotion(offset));
+                if(motion != null){
+                    StopCoroutine(motion);
+                }
+                motion = StartCoroutine(lockMotion(offset));
                 return targets;
             }
         } else {
