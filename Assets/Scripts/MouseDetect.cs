@@ -9,22 +9,31 @@ public class MouseDetect : MonoBehaviour
     public Vector2Int mousePos2d;
     public Camera cam;
     public RenderGrid gridRenderer;
-    public Coroutine settle;
+    public Coroutine action;
     public int segments = 50;
-    float radius;
+    public float radius;
     public LineRenderer line;
     public float cooldown;
     public List<Vector2> payload;
     public string payloadString;
     public string payloadTemp;
     public UdpSocket socket;
+    public int droneCount;
+    public List<Vector2> targetOffsets;
     // Start is called before the first frame update
     IEnumerator Start()
     {
         yield return 0;
         line.positionCount =  (segments + 1);
-
-        radius = gridRenderer.gridSize/10+0.5f;
+        droneCount = 0;
+        foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
+            droneCount += 1;
+        }
+        radius = Mathf.Sqrt((droneCount * 5)/Mathf.PI) + 1;
+        foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
+            targetOffsets.Add(FindOffset());
+            drone.GetComponent<DroneMove>().targetOffset = targetOffsets[^1];
+        }
         float x;
         float y;
         float angle = 20f;
@@ -51,7 +60,10 @@ public class MouseDetect : MonoBehaviour
 
         if(Input.GetMouseButtonDown(0) && !Input.GetKey(KeyCode.Z) && !Input.GetKey(KeyCode.X)){
             if((int)mousePos.x >= 0 && (int)mousePos.x < gridRenderer.gridSize && (int)mousePos.y >= 0 && (int)mousePos.y < gridRenderer.gridSize){
-                StartCoroutine(MoveDrones(mousePos2d));
+                if(action != null){
+                    StopCoroutine(action);
+                }
+                action = StartCoroutine(MoveDrones(mousePos2d, 2));
             } else {
                 Debug.Log("Invalid Location");
             }
@@ -71,54 +83,35 @@ public class MouseDetect : MonoBehaviour
         }
     }
 
-    public IEnumerator MoveDrones(Vector2 cellPos)
+    public IEnumerator MoveDrones(Vector2 cellPos, int iterations)
     {
-        if(settle != null){
-            StopCoroutine(settle);
-        }
+        yield return 0;
+        while(gridRenderer.movingDrones > 0) yield return null;
         //Debug.Log(cellPos);
         gridRenderer.ResetGrid();
         foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
             payload = drone.GetComponent<DroneMove>().MoveTo(cellPos, 0);
-            payloadString = "";
-            //TODO: only send the vertices required to draw the line, not every point it intersects
-            for(int i = 0; i < payload.Count; i++){
-                payloadTemp = ((int)payload[i].x).ToString();
-                if(payloadTemp.Length < 2){
-                    payloadTemp = '0' + payloadTemp;
-                }
-                payloadString += payloadTemp;
-                payloadTemp = ((int)payload[i].y).ToString();
-                if(payloadTemp.Length < 2){
-                    payloadTemp = '0' + payloadTemp;
-                }
-                payloadString += payloadTemp;
-                //payloadString += Vector2Int.RoundToInt(payload[i]).ToString();
-            }
-            //print(payloadString);
-            socket.SendData(payloadString);
-        }
-        socket.SendData("complete");
-        yield return null;
-    }
-
-    public IEnumerator Settle(Vector2 cellPos, int iterations)
-    {
-        iterations -= 1;
-        yield return 0;
-        while(gridRenderer.movingDrones > 0) yield return null;
-        yield return 0;
-        //Debug.Log("Settling");
-        foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
-            drone.GetComponent<DroneMove>().MoveTo(cellPos, 0);
-            yield return 0;
+            // payloadString = "";
+            // //TODO: only send the vertices required to draw the line, not every point it intersects
+            // for(int i = 0; i < payload.Count; i++){
+            //     payloadTemp = ((int)payload[i].x).ToString();
+            //     if(payloadTemp.Length < 2){
+            //         payloadTemp = '0' + payloadTemp;
+            //     }
+            //     payloadString += payloadTemp;
+            //     payloadTemp = ((int)payload[i].y).ToString();
+            //     if(payloadTemp.Length < 2){
+            //         payloadTemp = '0' + payloadTemp;
+            //     }
+            //     payloadString += payloadTemp;
+            // }
+            // socket.SendData(payloadString);
         }
         if(iterations > 0){
-            yield return new WaitForSeconds(0.1f);
-            settle = StartCoroutine(Settle(cellPos, iterations));
+            action = StartCoroutine(MoveDrones(cellPos, iterations - 1));
         }
+        // socket.SendData("complete");
     }
-
     void FixedUpdate()
     {
         if(cooldown > 0){
@@ -133,9 +126,51 @@ public class MouseDetect : MonoBehaviour
             if((int)mousePos.x >= 0 && (int)mousePos.x < gridRenderer.gridSize && (int)mousePos.y >= 0 && (int)mousePos.y < gridRenderer.gridSize && cooldown < 1 && gridRenderer.movingDrones < 1){
                 //Debug.Log(mousePos2d);
                 //cooldown += 20;
-                StartCoroutine(MoveDrones(mousePos2d));
+                if(action != null){
+                    StopCoroutine(action);
+                }
+                action = StartCoroutine(MoveDrones(mousePos2d, 2));
             }
             yield return 0;
         }
+    }
+
+    public Vector2 FindOffset(){
+        float y;
+        float x;
+        Vector2 checkPos;
+        for(int i = 0; i < radius; i += 2){
+            y = -i;
+            for (x =  -i; x <= i; x += 2)
+            {
+                checkPos = new Vector2(x, y);
+                if(!targetOffsets.Contains(checkPos)){
+                    return checkPos;
+                }
+            }
+            for (y = -i; y <= i; y += 2)
+            {
+                checkPos = new Vector2(x, y);
+                if(!targetOffsets.Contains(checkPos)){
+                    return checkPos;
+                }
+            }
+            for (x = i; x >= -i; x -= 2)
+            {
+                checkPos = new Vector2(x, y);
+                if(!targetOffsets.Contains(checkPos)){
+                    return checkPos;
+                }
+            }
+            for (y = i; y >= -i; y -= 2)
+            {
+                checkPos = new Vector2(x, y);
+                if(!targetOffsets.Contains(checkPos)){
+                    return checkPos;
+                }
+            }
+        }
+        Debug.Log("!!!Offset Location Failed!!!");
+        return new Vector2(-1,-1);
     }
 }

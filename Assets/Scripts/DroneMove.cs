@@ -11,20 +11,25 @@ public class DroneMove : MonoBehaviour
     public bool locked;
     public LineRenderer line;
     public Coroutine motion;
+    public bool pathingEnabled;
+    public Vector2 targetOffset;
+    public MouseDetect mouseDetect;
     // Start is called before the first frame update
     IEnumerator Start()
     {
-        yield return 0;
         gridRenderer = GameObject.Find("Grid").GetComponent<RenderGrid>();
+        mouseDetect = GameObject.Find("Mouse Detection").GetComponent<MouseDetect>();
+        yield return 0;
         currentPos = new Vector2(Mathf.RoundToInt(transform.position.x),Mathf.RoundToInt(transform.position.y));
         gridRenderer.cells[currentPos].tickObstruct.Add(-1);
+        pathingEnabled = true;
     }
 
     // Update is called once per frame
     void Update()
     {
         line.SetPosition(0, transform.position);
-        if(targets.Count > 0 && !locked){
+        if(targets.Count > 0 && !locked && pathingEnabled){
             int nextIndex = Mathf.Min(1,targets.Count-1);
             transform.position = Vector3.MoveTowards(transform.position, new Vector3(targets[nextIndex].x,targets[nextIndex].y,transform.position.z), Time.deltaTime * speed);
             if(Vector2.Distance(transform.position, targets[nextIndex]) == 0){
@@ -44,6 +49,9 @@ public class DroneMove : MonoBehaviour
                 targets.RemoveAt(0);
             }
         }
+        if(!pathingEnabled){
+            transform.position = Vector3.MoveTowards(transform.position, new Vector3(mouseDetect.gameObject.transform.position.x + targetOffset.x,mouseDetect.gameObject.transform.position.y + targetOffset.y, 0), Time.deltaTime * speed);
+        }
     }
     public List<Vector2> MoveTo(Vector2 cellPos, int offset)
     {
@@ -62,7 +70,7 @@ public class DroneMove : MonoBehaviour
         }
         Vector2 targetPos = gridRenderer.FindNearest(cellPos, currentPos, offset);
         gridRenderer.cells[currentPos].tickObstruct.Add(offset);
-        if(Vector2.Distance(targetPos, currentPos) > gridRenderer.gridSize/10){
+        if(Vector2.Distance(targetPos, currentPos) > mouseDetect.radius){
             if(targetPos != new Vector2(-1,-1)){
                 targets = gridRenderer.FindPath(currentPos, targetPos, offset);
             }

@@ -8,6 +8,7 @@ public class RenderGrid : MonoBehaviour
     public GameObject dronePrefab;
     public GameObject background;
     public GameObject cubePre;
+    public MouseDetect mouseDetect;
     public int gridSize;
     public int droneCount;
     public int tolerance;
@@ -26,6 +27,7 @@ public class RenderGrid : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        mouseDetect = GameObject.Find("Mouse Detection").GetComponent<MouseDetect>();
         Application.targetFrameRate = 60;
         //do no drop frames lower than 50 fps
         Time.maximumDeltaTime = 0.025f;
@@ -89,7 +91,7 @@ public class RenderGrid : MonoBehaviour
             }
         }
         foreach(GameObject drone in GameObject.FindGameObjectsWithTag("Drone")){
-            cells[new Vector2(Mathf.RoundToInt(drone.transform.position.x),Mathf.RoundToInt(drone.transform.position.y))].tickObstruct.Add(0);
+            cells[new Vector2(Mathf.RoundToInt(drone.transform.position.x),Mathf.RoundToInt(drone.transform.position.y))].tickObstruct.Add(-1);
         }
     }
 
@@ -171,52 +173,65 @@ public class RenderGrid : MonoBehaviour
 
     public Vector2 FindNearest(Vector2 cellPos, Vector2 startPos, int offset)
     {
-        if(CheckValid(cellPos, startPos, offset)){
+        if(FindFuturePath(cellPos, startPos, offset)){
             return cellPos;
         }
         float y;
         float x;
         Vector2 checkPos;
         //I was so scared to use four for loops because of what my comp sci teachers would say but it's much more efficient than the last method
-        for(int i = 0; i < gridSize/5; i++){
+        for(int i = 0; i < mouseDetect.radius; i += 2){
             y = cellPos.y -i;
-            for (x = cellPos.x - i; x <= cellPos.x + i; x += 1)
+            for (x = cellPos.x - i; x <= cellPos.x + i; x += 2)
             {
                 checkPos = new Vector2(x, y);
-                if(FindFuturePath(cellPos, checkPos, startPos, offset)){
+                if(FindFuturePath(checkPos, startPos, offset)){
                     return checkPos;
                 }
             }
-            for (y = cellPos.y - i; y <= cellPos.y + i; y += 1)
+            for (y = cellPos.y - i; y <= cellPos.y + i; y += 2)
             {
                 checkPos = new Vector2(x, y);
-                if(FindFuturePath(cellPos, checkPos, startPos, offset)){
+                if(FindFuturePath(checkPos, startPos, offset)){
                     return checkPos;
                 }
             }
-            for (x = cellPos.x + i; x >= cellPos.x - i; x -= 1)
+            for (x = cellPos.x + i; x >= cellPos.x - i; x -= 2)
             {
                 checkPos = new Vector2(x, y);
-                if(FindFuturePath(cellPos, checkPos, startPos, offset)){
+                if(FindFuturePath(checkPos, startPos, offset)){
                     return checkPos;
                 }
             }
-            for (y = cellPos.y + i; y >= cellPos.y - i; y -= 1)
+            for (y = cellPos.y + i; y >= cellPos.y - i; y -= 2)
             {
                 checkPos = new Vector2(x, y);
-                if(FindFuturePath(cellPos, checkPos, startPos, offset)){
+                if(FindFuturePath(checkPos, startPos, offset)){
                     return checkPos;
                 }
             }
         }
         return new Vector2(-1,-1);
     }
-    public bool FindFuturePath(Vector2 cellPos, Vector2 checkPos, Vector2 startPos, int offset)
+    public bool FindFuturePath(Vector2 checkPos, Vector2 startPos, int offset)
     {
-        if(!(cells.TryGetValue(checkPos, out Cell c) && (CheckValid(checkPos, startPos, offset) || checkPos == startPos))){
+        if(!cells.TryGetValue(checkPos, out Cell c)){
             return false;
         }
-        if(Mathf.Max(cells[checkPos].tickObstruct.ToArray()) > GetDistance(startPos, checkPos)  || cells[checkPos].tickObstruct.Contains(-1)){
+        if(checkPos == startPos){
+            return true;
+        }
+        for(int x = -1; x <= 1; x++){
+            for(int y = -1; y <= 1; y++){
+                Vector2 tempCheck = new Vector2(checkPos.x + x, checkPos.y + y);
+                if(cells.TryGetValue(tempCheck, out Cell d)){
+                    if(!CheckValid(tempCheck, startPos, offset)){
+                        return false;
+                    }
+                }
+            }
+        }
+        if(Mathf.Max(cells[checkPos].tickObstruct.ToArray()) > GetDistance(startPos, checkPos)){
             return false;
         }
         return true;
