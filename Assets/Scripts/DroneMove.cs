@@ -44,7 +44,7 @@ public class DroneMove : MonoBehaviour
             }
         }
     }
-    public void MoveTo(Vector2 cellPos, int offset)
+    public List<Vector2> MoveTo(Vector2 cellPos, int offset)
     {
         currentPos = new Vector2(Mathf.RoundToInt(transform.position.x),Mathf.RoundToInt(transform.position.y));
         //remove all previous targets
@@ -68,15 +68,18 @@ public class DroneMove : MonoBehaviour
                 //drones without a valid path sometimes get stuck at a weird decimal position, and don't count their tile as occupied
                 //this code makes it move to the nearest int while waiting for a path
                 gridRenderer.cells[currentPos].tickObstruct.Add(offset);
-                if(offset < gridRenderer.tolerance * 500){
-                    MoveTo(cellPos, offset + gridRenderer.tolerance * 10);
+                if(offset < gridRenderer.tolerance * 200){
+                    MoveTo(cellPos, offset + gridRenderer.tolerance * 20);
                 }
             } else {
                 StartCoroutine(lockMotion(offset));
+                return targets;
             }
         } else {
             gridRenderer.cells[currentPos].tickObstruct.Add(-1);
+            return targets;
         }
+        return targets;
     }
 
     public IEnumerator lockMotion(float duration)
